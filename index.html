@@ -20,7 +20,8 @@ input{-webkit-user-select:text;user-select:text}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
 a{color:inherit}
-.btn{display:flex;align-items:center;justify-content:center;width:100%;height:50px;min-height:50px;padding:0 8px;border-radius:14px;background:var(--acc);color:#0a0a0a;font-weight:500;font-size:16px;line-height:1.2;text-align:center;text-decoration:none}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:42px;min-height:42px;padding:0 8px;border-radius:14px;background:var(--acc);color:#0a0a0a;font-weight:700;font-size:14px;line-height:1.2;text-align:center;text-decoration:none}
+.btn.white{background:#fff}
 .btn.ghost{background:transparent;color:var(--fg);border:1px solid #3a3a3a}
 .btn:active{transform:scale(.985)}
 #dlg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:24px}
@@ -62,8 +63,8 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 
 /* event */
 .topbar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:6px 0 10px}
-.back{width:40px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:18px}
-.tt{text-align:center;font-weight:800;font-size:15px}
+.back{width:40px;height:40px;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;padding:0;font-size:26px;line-height:1}
+.tt{text-align:center;font-weight:800;font-size:16px}
 .step{text-align:right;color:var(--mute);font-size:12.5px}
 .stagebox{min-height:calc(100dvh - 200px);display:flex;flex-direction:column;justify-content:center;padding-bottom:10px}
 .intro{display:flex;flex-direction:column;gap:12px}
@@ -157,10 +158,11 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
     <div class="progress"><div class="bar"><i id="progFill"></i></div><span id="progText">0 / 6</span></div>
     <div id="evList"></div>
     <button class="btn" id="startBtn">측정 시작</button>
-    <button class="btn cta" id="resetHome" style="margin-top:10px" hidden>기록 초기화</button>
-    <button class="link" id="demoBtn">센서 없이 둘러보기 (데모)</button>
+    <button class="btn white" id="viewCard" style="margin-top:10px" hidden>내 능력치 확인하기</button>
+    <button class="btn ghost" id="resetHome" style="margin-top:10px" hidden>기록 초기화</button>
     <p class="fine">기기마다 오차가 있고 의학적·공식 기록이 아니에요.</p>
-    <footer>Engineered by © KYE3 · kye3.com</footer>
+    <p class="fine" style="margin-top:0">Engineered by © KYE3 · kye3.com</p>
+    <button class="link" id="demoBtn" style="font-size:12px;margin-top:22px">센서 없이 둘러보기 (데모)</button>
   </section>
 
   <!-- EVENT -->
@@ -171,12 +173,12 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 
   <!-- FINAL -->
   <section id="final" hidden>
-    <div class="topbar"><button class="back" id="finBack" aria-label="홈으로" title="홈"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block;margin:0 auto"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></button><div class="tt">나의 선수 유형</div><div></div></div>
+    <div class="topbar"><button class="back" id="finBack" aria-label="뒤로">←</button><div class="tt">능력치 확인</div><div></div></div>
     <canvas id="card" width="1080" height="1350"></canvas>
     <label class="nick">닉네임<input id="nick" maxlength="14" placeholder="카드에 표시돼요 (선택)" autocomplete="off"></label>
     <div class="btnrow"><button class="btn" id="shareBtn" hidden>이미지 저장</button></div>
     <a class="btn cta" id="ctaBtn" href="https://kye3.com" target="_blank" rel="noopener">KYE3 컬렉션 보러가기 →</a>
-    <div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="resetBtn" style="height:auto;padding:8px">처음부터 다시 측정</button><button class="btn ghost" id="addShout" style="height:auto;padding:8px" hidden>기합 데시벨 측정 (선택)</button></div>
+    <div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="resetBtn" style="height:auto;padding:8px;font-size:14px">첫 화면으로 돌아가기</button><button class="btn ghost" id="addShout" style="height:auto;padding:8px;font-size:14px" hidden>기합 데시벨 측정 (선택)</button></div>
   </section>
 </main>
 <div id="dlg" hidden><div class="dlgbox" role="alertdialog" aria-modal="true" aria-labelledby="dlgMsg"><p id="dlgMsg"></p><div class="btnrow"><button class="btn ghost" id="dlgNo">취소</button><button class="btn" id="dlgYes">초기화</button></div></div></div>
@@ -362,12 +364,12 @@ const AXES = [
   {id:'shout',    key:'SPIRIT',   ko:'기합'}
 ];
 function classify(scores){
-  const vals=AXES.filter(a=>scores[a.id]!=null).map(a=>scores[a.id]);
+  const mAx=AXES.filter(a=>scores[a.id]!=null), vals=mAx.map(a=>scores[a.id]);
   if(!vals.length) vals.push(0);
   const avg=vals.reduce((a,b)=>a+b,0)/vals.length, min=Math.min(...vals), max=Math.max(...vals);
   let typeKey;
-  if(min>=60 || (avg>=70 && max-min<=20)) typeKey='ALL';
-  else { let bi=0; vals.forEach((v,i)=>{ if(v>vals[bi]) bi=i; }); typeKey=AXES[bi].key; }
+  if(vals.length>=3 && (min>=60 || (avg>=70 && max-min<=20))) typeKey='ALL';   // 올라운더는 3개 이상 쟀을 때만
+  else { let bi=0; vals.forEach((v,i)=>{ if(v>vals[bi]) bi=i; }); typeKey=(mAx[bi]||AXES[0]).key; }
   const tier = avg>=90?'LEGEND' : avg>=75?'ELITE' : avg>=60?'ATHLETE' : avg>=40?'CHALLENGER' : 'ROOKIE';
   return { typeKey, tier, avg:Math.round(avg) };
 }
@@ -438,9 +440,9 @@ function overallTop(list){
 const $=(s,r=document)=>r.querySelector(s);
 const CANCEL=Symbol('cancel');
 const STORE_KEY='kye3_motionlab_v1';
-const state={ scores:{}, labels:{}, pct:{}, sex:'', name:'', demo:false };
-try{ const j=JSON.parse(localStorage.getItem(STORE_KEY)||'null'); if(j){ state.scores=j.scores||{}; state.labels=j.labels||{}; state.name=j.name||''; state.pct=j.pct||{}; state.sex=(j.sex==='m'||j.sex==='f')?j.sex:''; } }catch(e){}
-function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({scores:state.scores,labels:state.labels,pct:state.pct,sex:state.sex,name:state.name})); }catch(e){} }
+const state={ scores:{}, labels:{}, pct:{}, results:{}, sex:'', name:'', demo:false };
+try{ const j=JSON.parse(localStorage.getItem(STORE_KEY)||'null'); if(j){ state.scores=j.scores||{}; state.labels=j.labels||{}; state.name=j.name||''; state.pct=j.pct||{}; state.results=(j.results&&typeof j.results==='object')?j.results:{}; state.sex=(j.sex==='m'||j.sex==='f')?j.sex:''; } }catch(e){}
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({scores:state.scores,labels:state.labels,pct:state.pct,results:state.results,sex:state.sex,name:state.name})); }catch(e){} }
 /* 실제 사용자 기록 서버(Cloudflare Worker). 배포 후 주소를 넣으면 켜져요. 비어 있으면 연구 자료만 써요. */
 const API_BASE='';   // 예: 'https://motionlab-api.내계정.workers.dev'
 const lastMetric={};
@@ -567,17 +569,21 @@ function renderHome(){
   const n=Object.keys(state.scores).length, rd=reqDone();
   $('#progFill').style.width=(n/EVENTS.length*100)+'%';
   $('#progText').textContent=n+' / '+EVENTS.length;
-  $('#startBtn').textContent = n===0?'측정 시작' : rd<REQ.length?'이어서 측정하기' : '내 선수 유형 카드 보기';
+  $('#startBtn').textContent = n===0?'측정 시작' : rd<REQ.length?'이어서 측정하기' : '내 능력치 확인하기';
+  $('#startBtn').classList.toggle('white', n>0 && rd>=REQ.length);   // '내 능력치 확인하기' 상태일 때 같은 흰색 스타일
+  $('#viewCard').hidden = !(n>=1 && rd<REQ.length);   // 1개만 재도 중간 결과 카드를 볼 수 있어요
   $('#demoBadge').hidden=!state.demo;
   $('#demoBtn').textContent = state.demo ? '데모 모드 끄기' : '센서 없이 둘러보기 (데모)';
   $('#resetHome').hidden = n===0;
 }
 
-function openEvent(ev){
+function openEvent(ev,fresh){
   cancelRun(); curEv=ev; show('event');
   $('#evTitle').textContent=ev.name;
   $('#evStep').textContent=(EVENTS.indexOf(ev)+1)+' / '+EVENTS.length;
-  $('#stage').innerHTML=`<div class="intro"><div class="bigico">${ev.icon}</div><h2>${ev.name}</h2><p class="lead">${ev.tag}</p><ol class="how">${ev.how.map(h=>`<li>${h}</li>`).join('')}</ol>${ev.id==='jump'?sexPickHtml():''}<p class="warn">주의 · ${ev.warn}</p><button class="btn" id="goBtn">준비됐어요</button></div>`;
+  const saved=state.results[ev.id];
+  if(!fresh && state.scores[ev.id]!=null && saved){ track('motionlab_event_view_result',{event_id:ev.id}); showResult(ev,saved); return; }   // 이미 잰 종목은 저장된 결과를 보여줘요
+  $('#stage').innerHTML=`<div class="intro"><h2>${ev.name}</h2><p class="lead">${ev.tag}</p><ol class="how">${ev.how.map(h=>`<li>${h}</li>`).join('')}</ol>${ev.id==='jump'?sexPickHtml():''}<p class="warn">주의 · ${ev.warn}</p><button class="btn" id="goBtn">준비됐어요</button></div>`;
   $('#goBtn').onclick=()=>begin(ev);
   track('motionlab_event_view',{event_id:ev.id});
 }
@@ -614,7 +620,7 @@ async function launch(ev){
     else res=await RUNNERS[ev.id](ctx);
     ctx.check();
     ctx.end();
-    state.scores[ev.id]=res.score; state.labels[ev.id]=res.label; applyResearchPct(ev.id,res.metric); persist(); syncServer(ev.id,res.metric);
+    state.scores[ev.id]=res.score; state.labels[ev.id]=res.label; try{ state.results[ev.id]=JSON.parse(JSON.stringify(res)); }catch(e){} applyResearchPct(ev.id,res.metric); persist(); syncServer(ev.id,res.metric);
     track('motionlab_event_complete',{event_id:ev.id,score:res.score,demo:state.demo});
     showResult(ev,res);
   }catch(e){
@@ -623,7 +629,7 @@ async function launch(ev){
     if(e && e.code){ showSensorError(ev,e.code); return; }
     console.error(e);
     $('#stage').innerHTML=`<div class="errbox"><h3>측정 중 문제가 생겼어요</h3>잠시 후 다시 시도해 주세요.</div><button class="btn" id="errRetry" style="margin-top:12px">다시 시도</button>`;
-    $('#errRetry').onclick=()=>openEvent(ev);
+    $('#errRetry').onclick=()=>openEvent(ev,true);
   }
 }
 
@@ -639,20 +645,12 @@ function buildJump(found){
 const RK_KEY='kye3_motionlab_rx_v1';
 function loadRank(){ try{ const j=JSON.parse(localStorage.getItem(RK_KEY)||'[]'); return Array.isArray(j)?j:[]; }catch(e){ return []; } }
 function saveRank(l){ try{ localStorage.setItem(RK_KEY,JSON.stringify(l)); }catch(e){} }
-function rankHtml(rank,avg,r,id){
-  const rows=r.list.slice(0,5).map((e,i)=>`<li class="${e.id===id?'me':''}"><span>${i+1}</span><b>${e.avg} ms</b><small>최고 ${e.best}${e.id===id?' · 이번':''}</small></li>`).join('');
-  const out=r.pos>5?`<div class="fine" style="margin:8px 2px 0">이번 기록은 내 기기 기록 중 ${r.pos}위예요.</div>`:'';
-  return `<div class="rankbox"><div class="rk"><b class="grade g${rank.grade}">${rank.grade}</b><div><strong>${rank.name}</strong><small>평균 ${avg}ms 기준 등급</small></div></div><div class="rklist"><div class="t">내 기기 랭킹 TOP 5</div><ol>${rows}</ol>${out}</div></div>`;
-}
 function buildReaction(rounds){
   const S=summarizeReaction(rounds), T=TUNE.react;
   const avg=S.avg!=null?Math.round(S.avg):null, best=S.best!=null?Math.round(S.best):null;
   let extra='', note='';
   if(!S.valid) note='유효한 기록이 없어요. 원이 나타난 뒤에 터치하세요.';
-  else if(S.valid<3) note='유효 기록이 '+S.valid+'/'+T.rounds+'회라 랭킹에는 기록되지 않았어요.';
   else {
-    const id=Date.now(); const r=addRanking(loadRank(),{id,avg,best,d:id},20); saveRank(r.list);
-    extra=rankHtml(S.rank,avg,r,id);
     if(S.valid<T.rounds) note='유효 기록 '+S.valid+'/'+T.rounds+'회.';
   }
   return { metric:(S.valid>=3&&avg!=null)?avg:null, score:S.score, main:avg!=null?String(avg):'—', unit:'ms 평균', label:avg!=null?'평균 '+avg+'ms':'—', note, extra,
@@ -922,10 +920,11 @@ function nextEvent(ev){
 }
 function showResult(ev,res){
   const next=nextEvent(ev);
-  $('#stage').innerHTML=`<div class="result"><div class="eyebrow">${ev.en}</div><div class="rmain">${res.main}<small>${res.unit}</small></div><div class="rscore">SCORE <b>${res.score}</b> / 100</div><div class="rbar"><i id="rbarFill"></i></div><div class="rpct" id="rPct">${pctRowHtml(ev.id)}</div><p class="rcomment">${tierText(res.score)}${res.note?' '+res.note:''}</p><div class="rsub">${res.sub.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>${res.extra||''}<div class="btnrow"><button class="btn ghost" id="rRetry">다시 측정</button><button class="btn" id="rNext">${next?'다음 종목':'결과 카드 보기'}</button></div>${(!next && OPT && ev!==OPT && state.scores[OPT.id]==null)?`<button class="btn ghost" id="rOpt" style="margin-top:10px">${OPT.name}도 측정하기 (선택)</button>`:''}</div>`;
+  $('#stage').innerHTML=`<div class="result"><div class="eyebrow">${ev.en}</div><div class="rmain">${res.main}<small>${res.unit}</small></div><div class="rscore">SCORE <b>${res.score}</b> / 100</div><div class="rbar"><i id="rbarFill"></i></div><div class="rpct" id="rPct">${pctRowHtml(ev.id)}</div><p class="rcomment">${tierText(res.score)}${res.note?' '+res.note:''}</p><div class="rsub">${res.sub.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>${res.extra||''}<div class="btnrow"><button class="btn ghost" id="rRetry">다시 측정</button><button class="btn" id="rNext">${next?'다음 종목':'결과 카드 보기'}</button></div>${next?'<button class="btn ghost" id="rCard" style="margin-top:10px">결과 카드 보기</button>':''}${(!next && OPT && ev!==OPT && state.scores[OPT.id]==null)?`<button class="btn ghost" id="rOpt" style="margin-top:10px">${OPT.name}도 측정하기 (선택)</button>`:''}</div>`;
   requestAnimationFrame(()=>{ const f=$('#rbarFill'); if(f) f.style.width=res.score+'%'; });
-  $('#rRetry').onclick=()=>openEvent(ev);
+  $('#rRetry').onclick=()=>openEvent(ev,true);
   $('#rNext').onclick=()=>{ if(next) openEvent(next); else openFinal(); };
+  const rc=$('#rCard'); if(rc) rc.onclick=()=>openFinal();
   const ro=$('#rOpt'); if(ro) ro.onclick=()=>openEvent(OPT);
   window.scrollTo(0,0);
 }
@@ -939,7 +938,7 @@ function wrapLines(c,text,maxW){
 function drawCard(){
   const cv=$('#card'), c=cv.getContext('2d'); const W=1080,H=1350;
   const FONT='"Pretendard","Apple SD Gothic Neo","Noto Sans KR",-apple-system,"Segoe UI",sans-serif', ACC='#d4ff3a';
-  const AX=AXES.filter(a=>state.scores[a.id]!=null), sc=AX.map(a=>state.scores[a.id]);
+  const AX=AXES.filter(a=>state.scores[a.id]!=null || a.id!==OPT.id), sc=AX.map(a=>state.scores[a.id]!=null?state.scores[a.id]:null);   // 필수 5축은 항상 그리고, 아직 안 잰 축은 '-'로 표시
   const cls=classify(state.scores), T=TYPES[cls.typeKey];
   const d=new Date(); const dateStr=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
   c.clearRect(0,0,W,H);
@@ -957,22 +956,21 @@ function drawCard(){
   const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/N; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
   for(let k=1;k<=5;k++){ c.beginPath(); for(let i=0;i<N;i++){ const [x,y]=pt(i,R*k/5); i?c.lineTo(x,y):c.moveTo(x,y); } c.closePath(); c.strokeStyle=k===5?'#3a3a3a':'#262626'; c.lineWidth=2; c.stroke(); }
   c.strokeStyle='#262626'; for(let i=0;i<N;i++){ const [x,y]=pt(i,R); c.beginPath(); c.moveTo(cx,cy); c.lineTo(x,y); c.stroke(); }
-  c.beginPath(); sc.forEach((v,i)=>{ const [x,y]=pt(i,R*Math.max(v,4)/100); i?c.lineTo(x,y):c.moveTo(x,y); }); c.closePath();
+  c.beginPath(); sc.forEach((v,i)=>{ const [x,y]=pt(i,R*Math.max(v||0,4)/100); i?c.lineTo(x,y):c.moveTo(x,y); }); c.closePath();
   c.fillStyle='rgba(212,255,58,0.25)'; c.fill(); c.strokeStyle=ACC; c.lineWidth=5; c.lineJoin='round'; c.stroke();
-  sc.forEach((v,i)=>{ const [x,y]=pt(i,R*Math.max(v,4)/100); c.beginPath(); c.arc(x,y,9,0,Math.PI*2); c.fillStyle=ACC; c.fill(); });
+  sc.forEach((v,i)=>{ if(v==null) return; const [x,y]=pt(i,R*Math.max(v,4)/100); c.beginPath(); c.arc(x,y,9,0,Math.PI*2); c.fillStyle=ACC; c.fill(); });
   c.textAlign='center';
-  AX.forEach((a,i)=>{ const [x,y]=pt(i,R+78); c.fillStyle='#fff'; c.font=`700 32px ${FONT}`; c.fillText(a.ko,x,y-4); c.fillStyle=ACC; c.font=`800 40px ${FONT}`; c.fillText(String(sc[i]),x,y+40);
+  AX.forEach((a,i)=>{ const [x,y]=pt(i,R+78); c.fillStyle='#fff'; c.font=`700 32px ${FONT}`; c.fillText(a.ko,x,y-4); c.fillStyle=sc[i]==null?'#6f6f6f':ACC; c.font=`800 40px ${FONT}`; c.fillText(sc[i]==null?'-':String(sc[i]),x,y+40);
     const pc=state.pct[a.id]; if(pc){ c.fillStyle='#bdbdbd'; c.font=`600 26px ${FONT}`; c.fillText('상위 '+pc.p+'%',x,y+74); } });
   // tier pill
-  c.textAlign='left'; c.font=`700 28px ${FONT}`;
-  const op=overallTop(AX.map(a=>state.pct[a.id]?state.pct[a.id].p:null)), pill=`${cls.tier} · 종합 ${cls.avg}`+(op!=null?` · 상위 ${op}%`:''), pw=c.measureText(pill).width+48;
-  c.beginPath(); if(c.roundRect) c.roundRect(72,975,pw,52,26); else c.rect(72,975,pw,52);
-  c.strokeStyle=ACC; c.lineWidth=2; c.stroke(); c.fillStyle=ACC; c.fillText(pill,96,1011);
+  c.textAlign='left'; c.font=`700 36px ${FONT}`;
+  const op=overallTop(AX.map(a=>state.pct[a.id]?state.pct[a.id].p:null)), pill=`${cls.tier} · 종합 ${cls.avg}`+(op!=null?` · 상위 ${op}%`:''), pw=c.measureText(pill).width+60;
+  c.beginPath(); if(c.roundRect) c.roundRect(72,958,pw,68,34); else c.rect(72,958,pw,68);
+  c.strokeStyle=ACC; c.lineWidth=2; c.stroke(); c.fillStyle=ACC; c.fillText(pill,102,1004);
   // type
   c.fillStyle='#fff'; c.font=`800 96px ${FONT}`; c.fillText(T.ko,72,1124);
-  c.fillStyle=ACC; c.font=`700 28px ${FONT}`; c.fillText(T.en+'  ·  '+T.kw,72,1170);
   c.fillStyle='#cfcfcf'; c.font=`500 30px ${FONT}`;
-  wrapLines(c,T.desc,W-144).slice(0,2).forEach((l,i)=>c.fillText(l,72,1218+i*40));
+  wrapLines(c,T.desc,W-144).slice(0,2).forEach((l,i)=>c.fillText(l,72,1176+i*40));
   // footer
   c.fillStyle='#8a8a8a'; c.font=`600 26px ${FONT}`; c.textAlign='left'; c.fillText('@kye3_official  ·  kye3.com',72,1296);
   c.textAlign='right';
@@ -990,6 +988,7 @@ function openFinal(){
 function cardBlob(){ return new Promise(r=>$('#card').toBlob(r,'image/png')); }
 
 /* ---------- wiring ---------- */
+$('#viewCard').onclick=()=>{ track('motionlab_start',{demo:state.demo,partial:true}); openFinal(); };
 $('#startBtn').onclick=()=>{
   track('motionlab_start',{demo:state.demo});
   if(reqDone()>=REQ.length) return openFinal();
@@ -1011,10 +1010,10 @@ function askConfirm(msg,yesText){
     $('#dlgNo').focus();
   });
 }
-$('#resetHome').onclick=async()=>{ if(!await askConfirm('측정한 기록이 모두 지워져요.\n초기화할까요?','초기화')) return; state.scores={}; state.labels={}; state.pct={}; persist(); renderHome(); toast('기록을 초기화했어요'); };
+$('#resetHome').onclick=async()=>{ if(!await askConfirm('측정한 기록이 모두 지워져요.\n초기화할까요?','초기화')) return; state.scores={}; state.labels={}; state.pct={}; state.results={}; persist(); renderHome(); toast('기록을 초기화했어요'); };
 $('#evBack').onclick=()=>{ cancelRun(); renderHome(); show('home'); };
 $('#finBack').onclick=()=>{ renderHome(); show('home'); };
-$('#resetBtn').onclick=async()=>{ if(!await askConfirm('측정한 기록이 모두 지워지고\n처음부터 다시 측정해요.\n계속할까요?','다시 측정')) return; state.scores={}; state.labels={}; state.pct={}; persist(); renderHome(); show('home'); };
+$('#resetBtn').onclick=async()=>{ if(!await askConfirm('측정 기록은 그대로 유지돼요.\n첫 화면으로 이동할까요?','이동')) return; renderHome(); show('home'); };   // 기록은 그대로 두고 홈으로
 let nickRaf=0;
 $('#nick').addEventListener('input',e=>{ state.name=e.target.value.trim(); persist(); cancelAnimationFrame(nickRaf); nickRaf=requestAnimationFrame(drawCard); });
 $('#shareBtn').onclick=async()=>{
