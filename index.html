@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>KYE3 MOTION LAB — 폰으로 재는 내 운동 능력</title>
+<meta name="description" content="점프, 반응속도, 한발 밸런스, 팔치기, 펀치, 기합. 폰 센서로 5가지(+기합 선택)를 재고 나만의 선수 유형 카드를 만들어보세요.">
+<meta property="og:title" content="KYE3 MOTION LAB">
+<meta property="og:description" content="폰 센서로 5가지를 재고, 나만의 선수 유형 카드를 만들어보세요.">
+<meta property="og:type" content="website">
+<!-- 여기에 movement.kye3.com과 같은 GTM 스니펫을 넣으면 아래 dataLayer 이벤트가 그대로 수집돼요. -->
+<style>
+:root{--bg:#0a0a0a;--panel:#141414;--line:#262626;--fg:#f5f5f5;--mute:#8a8a8a;--acc:#d4ff3a;--red:#ff4d3d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;min-height:100dvh;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+input{-webkit-user-select:text;user-select:text}
+#app{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom))}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+a{color:inherit}
+.btn{display:block;width:100%;padding:17px 18px;border-radius:14px;background:var(--acc);color:#0a0a0a;font-weight:800;font-size:17px;text-align:center;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid #3a3a3a}
+.btn:active{transform:scale(.985)}
+.link{display:block;margin:14px auto 0;color:var(--mute);font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.btnrow{display:flex;gap:10px;margin-top:14px}.btnrow .btn{flex:1}
+.fine{color:#6f6f6f;font-size:12px;line-height:1.6;margin:18px 2px 0}
+.eyebrow{color:var(--acc);font-size:12px;font-weight:700;letter-spacing:.14em}
+.ico{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* home */
+.top{display:flex;justify-content:space-between;align-items:center;padding:6px 0 18px}
+.brand{font-weight:900;font-size:20px;letter-spacing:.02em}
+.brand span{color:var(--acc);font-size:13px;font-weight:700;letter-spacing:.16em;margin-left:8px}
+.ext{color:var(--mute);font-size:13px;text-decoration:none}
+.hero h1{font-size:36px;line-height:1.18;margin:10px 0 12px;font-weight:900;letter-spacing:-.02em}
+.hero p{color:#bdbdbd;font-size:15px;line-height:1.65;margin:0 0 20px}
+.hero b{color:var(--acc)}
+.progress{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+.progress .bar{flex:1;height:6px;border-radius:3px;background:#222;overflow:hidden}
+.progress .bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .4s}
+.progress span{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.demo-badge{display:inline-block;margin-bottom:10px;padding:4px 10px;border-radius:999px;border:1px solid #3a3a3a;color:var(--mute);font-size:12px}
+#evList{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.evcard{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);text-align:left}
+.evcard.done{border-color:#3b4a12}
+.evico{width:44px;height:44px;flex:none;padding:10px;border-radius:12px;background:#1d1d1d;color:var(--acc)}
+.evtxt{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.evtxt b{font-size:16px}
+.evtxt small{color:var(--mute);font-size:12.5px}
+.evstat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none}
+.evstat em{font-style:normal;font-weight:900;font-size:24px;color:var(--acc);font-variant-numeric:tabular-nums}
+.evstat small{color:var(--mute);font-size:11.5px}
+footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
+
+/* event */
+.topbar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:6px 0 10px}
+.back{width:40px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:18px}
+.tt{text-align:center;font-weight:800;font-size:15px}
+.step{text-align:right;color:var(--mute);font-size:12.5px}
+.stagebox{min-height:calc(100dvh - 150px);display:flex;flex-direction:column;justify-content:center;padding-bottom:10px}
+.intro{display:flex;flex-direction:column;gap:12px}
+.bigico{width:76px;height:76px;padding:18px;border-radius:22px;background:var(--panel);border:1px solid var(--line);color:var(--acc)}
+.intro h2{font-size:32px;margin:0;font-weight:900;letter-spacing:-.01em}
+.lead{margin:0;color:#bdbdbd;font-size:15px}
+.how{margin:6px 0 0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:10px}
+.how li{counter-increment:s;position:relative;padding:12px 14px 12px 46px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:14.5px;line-height:1.55;color:#e4e4e4}
+.how li::before{content:counter(s);position:absolute;left:14px;top:12px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#0a0a0a;font-weight:900;font-size:12.5px;display:grid;place-items:center}
+.warn{margin:2px 2px 6px;color:#c9a227;font-size:13px;line-height:1.55}
+.cd{text-align:center}
+.cdl{color:#bdbdbd;font-size:16px;line-height:1.55;margin-bottom:8px}
+.cdl b{color:var(--acc)}
+.cdn{font-size:140px;font-weight:900;line-height:1;color:var(--acc);font-variant-numeric:tabular-nums}
+.measure{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.status{font-size:44px;font-weight:900;color:var(--acc);letter-spacing:-.01em}
+.status.dim{color:#3d3d3d;font-size:34px;line-height:1.35}
+.timer{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums}
+.timer.big{font-size:120px;line-height:1}
+.dots{display:flex;gap:10px}.dots i{width:14px;height:14px;border-radius:50%;background:#2a2a2a}.dots i.on{background:var(--acc)}
+.jlist{display:flex;flex-direction:column;gap:6px;min-height:84px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.measure .btn{margin-top:10px}
+.react{position:relative;overflow:hidden;touch-action:manipulation;border-radius:24px;min-height:62dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#171717;border:1px solid var(--line);text-align:center;padding:20px}
+.react.go{background:var(--acc);color:#0a0a0a;border-color:var(--acc)}
+.react.bad{background:var(--red);color:#fff;border-color:var(--red)}
+.rxr{font-size:13px;letter-spacing:.14em;opacity:.75;font-weight:700}
+.rxm{font-size:64px;font-weight:900;letter-spacing:-.01em}
+.rxs{font-size:14px;opacity:.75;line-height:1.5;min-height:21px}
+.tgt{position:absolute;width:104px;height:104px;border-radius:50%;background:var(--acc);color:#0a0a0a;font-weight:900;font-size:20px;letter-spacing:.04em;box-shadow:0 0 0 10px rgba(212,255,58,.18),0 0 40px rgba(212,255,58,.55);touch-action:manipulation}
+.rankbox{margin-top:6px;padding:16px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
+.rk{display:flex;align-items:center;gap:14px}
+.grade{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:28px;font-weight:900;background:var(--acc);color:#0a0a0a;flex:none}
+.grade.gC{background:#8a8a8a}.grade.gD{background:#3a3a3a;color:#fff}
+.rk strong{display:block;font-size:17px}.rk small{color:var(--mute);font-size:12.5px}
+.rklist{margin-top:14px}.rklist .t{color:var(--mute);font-size:12px;letter-spacing:.06em;margin-bottom:6px}
+.rklist ol{list-style:none;margin:0;padding:0}
+.rklist li{display:grid;grid-template-columns:28px 1fr auto;gap:8px;padding:9px 6px;border-top:1px solid var(--line);font-size:14.5px;font-variant-numeric:tabular-nums}
+.rklist li.me{color:var(--acc);font-weight:800}
+.rklist li small{color:var(--mute);font-size:12px}
+.wob{display:grid;grid-template-columns:repeat(var(--n,30),1fr);align-items:end;gap:3px;height:90px;width:100%;margin-top:6px}
+.wob i{display:block;min-height:4px;border-radius:2px;background:var(--acc)}
+.wob i.hi{background:var(--red)}
+.meter{width:100%;height:26px;border-radius:13px;background:#222;overflow:hidden;position:relative}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#d4ff3a,#ffb020,#ff4d3d)}
+.meter u{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:0}
+.bignum{font-size:84px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.bignum small{font-size:22px;color:var(--mute);margin-left:6px}
+
+.result{display:flex;flex-direction:column;gap:12px}
+.rmain{font-size:96px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.rmain small{font-size:26px;color:var(--mute);margin-left:8px;letter-spacing:0}
+.rscore{color:var(--mute);font-size:14px;letter-spacing:.06em}.rscore b{color:var(--acc);font-size:22px}
+.rbar{height:8px;border-radius:4px;background:#222;overflow:hidden}.rbar i{display:block;height:100%;background:var(--acc);width:0;transition:width .7s}
+.rcomment{margin:0;font-size:16px;line-height:1.6;color:#e4e4e4}
+.rsub{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.rsub div{display:flex;justify-content:space-between;padding:11px 2px;border-bottom:1px solid var(--line);font-size:14.5px}
+.rsub span{color:var(--mute)}.rsub b{font-variant-numeric:tabular-nums}
+.errbox{padding:18px;border-radius:16px;background:var(--panel);border:1px solid var(--line);line-height:1.65;font-size:14.5px;color:#d6d6d6}
+.errbox h3{margin:0 0 8px;font-size:19px;color:var(--fg)}
+
+/* final */
+#card{width:100%;height:auto;border-radius:18px;display:block;background:#0a0a0a;border:1px solid var(--line)}
+.nick{display:flex;align-items:center;gap:10px;margin:14px 0 0;color:var(--mute);font-size:13.5px}
+.nick input{flex:1;padding:12px 14px;border-radius:12px;border:1px solid #333;background:var(--panel);color:var(--fg);font:inherit;font-size:15px}
+.cta{margin-top:12px;background:#fff}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#fff;color:#0a0a0a;padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<noscript><p style="padding:24px">이 페이지는 JavaScript가 필요해요.</p></noscript>
+<main id="app">
+
+  <!-- HOME -->
+  <section id="home">
+    <header class="top">
+      <div class="brand">KYE3<span>MOTION LAB</span></div>
+      <a class="ext" href="https://kye3.com" target="_blank" rel="noopener" id="topLink">kye3.com ↗</a>
+    </header>
+    <div class="hero">
+      <div class="eyebrow">KEEP MOVING FORWARD</div>
+      <h1>내 몸의 스펙,<br>폰으로 재본다.</h1>
+      <p>반응속도 · 팔치기 · 펀치 · 밸런스 · 점프<br>5가지를 재고 나만의 <b>선수 유형 카드</b>를 만들어요.<br><small>기합 데시벨은 선택이에요.</small></p>
+    </div>
+    <div id="demoBadge" class="demo-badge" hidden>데모 모드 — 센서 대신 임의 값이 들어가요</div>
+    <div class="progress"><div class="bar"><i id="progFill"></i></div><span id="progText">0 / 5</span></div>
+    <div id="evList"></div>
+    <button class="btn" id="startBtn">측정 시작</button>
+    <button class="link" id="demoBtn">센서 없이 둘러보기 (데모)</button>
+    <button class="link" id="resetHome" hidden>기록 초기화</button>
+    <p class="fine">엔터테인먼트용 상대 측정이에요. 기기마다 오차가 있고 의학적·공식 기록이 아니에요. 주변이 비어 있는 안전한 곳에서, 무리하지 말고 즐겨주세요.</p>
+    <footer>Engineered by © KYE3 · kye3.com</footer>
+  </section>
+
+  <!-- EVENT -->
+  <section id="event" hidden>
+    <div class="topbar"><button class="back" id="evBack" aria-label="뒤로">←</button><div class="tt" id="evTitle"></div><div class="step" id="evStep"></div></div>
+    <div class="stagebox"><div id="stage"></div></div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="final" hidden>
+    <div class="topbar"><button class="back" id="finBack" aria-label="뒤로">←</button><div class="tt">나의 선수 유형</div><div></div></div>
+    <canvas id="card" width="1080" height="1350"></canvas>
+    <label class="nick">닉네임<input id="nick" maxlength="14" placeholder="카드에 표시돼요 (선택)" autocomplete="off"></label>
+    <div class="btnrow"><button class="btn" id="saveBtn">이미지 저장</button><button class="btn ghost" id="shareBtn" hidden>공유하기</button></div>
+    <p class="fine" style="margin-top:12px">공유할 때 @kye3_official 을 태그해주세요.</p>
+    <a class="btn cta" id="ctaBtn" href="https://kye3.com" target="_blank" rel="noopener">KYE3 컬렉션 보러가기 →</a>
+    <button class="link" id="addShout" hidden>기합 데시벨도 측정해서 카드에 추가 (선택)</button>
+    <button class="link" id="resetBtn">처음부터 다시 측정</button>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+/* ====================================================================
+   ALGORITHMS (pure functions — Node 로 테스트 가능)
+   ==================================================================== */
+// ==ALGO-START==
+const G = 9.80665;
+// 실제 기기 테스트 후 여기 숫자만 조정하면 돼요.
+const TUNE = {
+  jump:   { lowTh:3.0, highTh:6.5, takeoffTh:11.0, takeoffWindow:0.4, minFlight:0.20, maxFlight:1.0, minCm:10, maxCm:60 },
+  react:  { rounds:5, minValid:100, maxWait:2500, minDelay:1500, maxDelay:4500, bestMs:180, worstMs:520 },
+  balance:{ accBest:0.05, accWorst:1.4, gyroBest:1.0, gyroWorst:14, touchPeakGyro:60, touchPeakAcc:2.5, legSec:15, prepSec:5, switchSec:4 },
+  sprint: { seconds:20, fcHz:2.8, minAmp:6, k:0.35, minPeriod:250, minCount:24, maxCount:60 },
+  punch:  { floor:12, k:0.6, minGap:170, seconds:10, minPeak:12, maxPeak:60, minCount:8, maxCount:35, wPeak:0.6 },
+  shout:  { minDb:-42, maxDb:-6 }
+};
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function lerp01(v,lo,hi){ return clamp((v-lo)/(hi-lo),0,1); }
+function toScore(x01){ return Math.round(clamp(x01,0,1)*100); }
+
+/* 점프: 가속도 크기(중력 포함)가 0 근처로 떨어지는 '무중력 구간'의 길이 = 체공시간. h = g·t²/8 */
+function createJumpDetector(opts){
+  const o = Object.assign({}, TUNE.jump, opts);
+  let state='ground', tLow=0, lastSpike=-1e9; const jumps=[];
+  return {
+    push(s){
+      const m=s.mag, t=s.t;
+      if(state==='ground'){
+        if(m>o.takeoffTh) lastSpike=t;
+        if(m<o.lowTh){ state='air'; tLow=t; }
+      } else if(m>o.highTh){
+        state='ground';
+        const flight=(t-tLow)/1000;
+        if(flight>=o.minFlight && flight<=o.maxFlight && (tLow-lastSpike)/1000<=o.takeoffWindow){
+          const j={ t, flight, height: G*flight*flight/8*100 };
+          jumps.push(j); return j;
+        }
+      }
+      return null;
+    },
+    get jumps(){ return jumps; }
+  };
+}
+function jumpScore(cm){ return toScore(lerp01(cm, TUNE.jump.minCm, TUNE.jump.maxCm)); }
+
+/* 리액션 탭: 4라운드 평균·최고 + 등급 + 내 기기 랭킹 */
+function reactionScore(ms){ const r=TUNE.react; return toScore(lerp01(r.worstMs-ms, 0, r.worstMs-r.bestMs)); }
+function reactionRank(avg){
+  const R=[[220,'S','번개 스타터'],[260,'A','치타'],[310,'B','단거리 선수'],[380,'C','조깅 모드']];
+  for(const r of R) if(avg<=r[0]) return {grade:r[1], name:r[2]};
+  return {grade:'D', name:'아직 잠이 덜 깼어요'};
+}
+function summarizeReaction(rounds){
+  const ok=rounds.filter(r=>r.ms!=null).map(r=>r.ms);
+  if(!ok.length) return {valid:0, avg:null, best:null, score:0, rank:null};
+  const avg=ok.reduce((a,b)=>a+b,0)/ok.length;
+  return {valid:ok.length, avg, best:Math.min(...ok), score:reactionScore(avg), rank:reactionRank(avg)};
+}
+function addRanking(list, entry, max){
+  const pos=list.filter(e=>e.avg<entry.avg).length+1;
+  const next=list.concat([entry]).sort((a,b)=>a.avg-b.avg).slice(0,max||20);
+  return {list:next, pos};
+}
+
+/* 한발 밸런스: 1초 단위로 가속도 분산 + 자이로 RMS 를 흔들림으로 환산. 발이 땅에 닿는 큰 충격이 나오면 거기까지만 측정 */
+function variance(a){ if(a.length<2) return 0; let m=0; for(const v of a) m+=v; m/=a.length; let s=0; for(const v of a) s+=(v-m)*(v-m); return s/a.length; }
+function bucketWobble(samples){
+  if(samples.length<5) return null;
+  const acc=Math.sqrt(variance(samples.map(s=>s.ax))+variance(samples.map(s=>s.ay))+variance(samples.map(s=>s.az)));
+  const gs=samples.filter(s=>s.gm!=null && !isNaN(s.gm));
+  let gyro=null, peakGyro=0; if(gs.length>=5){ let q=0; for(const s of gs){ q+=s.gm*s.gm; if(s.gm>peakGyro) peakGyro=s.gm; } gyro=Math.sqrt(q/gs.length); }
+  const mags=samples.map(s=>Math.hypot(s.ax,s.ay,s.az)); let mm=0; for(const v of mags) mm+=v; mm/=mags.length;
+  let peakAcc=0; for(const v of mags){ const d=Math.abs(v-mm); if(d>peakAcc) peakAcc=d; }
+  return { acc, gyro, peakAcc, peakGyro };
+}
+function stability01(w){
+  const p=TUNE.balance; const parts=[1-lerp01(w.acc,p.accBest,p.accWorst)];
+  if(w.gyro!=null) parts.push(1-lerp01(w.gyro,p.gyroBest,p.gyroWorst));
+  return parts.reduce((a,b)=>a+b,0)/parts.length;
+}
+function balanceSummary(buckets, legSec){
+  const p=TUNE.balance, secs=legSec||p.legSec; let hold=buckets.length;
+  for(let i=0;i<buckets.length;i++){
+    const w=buckets[i];
+    if(w && (w.peakAcc>p.touchPeakAcc || w.peakGyro>p.touchPeakGyro)){ hold=i; break; }
+  }
+  const stabs=buckets.slice(0,hold).filter(Boolean).map(stability01);
+  const steady=stabs.length ? stabs.reduce((a,b)=>a+b,0)/stabs.length : 0;
+  return {
+    hold, touched: hold<buckets.length,
+    steady: Math.round(steady*100),
+    score: toScore(steady*Math.min(hold,secs)/secs),
+    wobble: buckets.map(w=> w ? 1-stability01(w) : 0)
+  };
+}
+
+/* 제자리 팔치기: 손에 쥔 폰이 앞뒤로 왕복한 횟수.
+   3축 선형가속도 → 저역통과(발 착지 충격 제거) → 가장 크게 흔들리는 축을 자동으로 찾아 투영 → 히스테리시스로 왕복 1회씩 셈.
+   폰을 어느 방향으로 쥐어도 되고, 뛰지 않고 팔만 흔들어도 셈 */
+function createSwingCounter(opts){
+  const c=Object.assign({}, TUNE.sprint, opts);
+  const RC=1/(2*Math.PI*c.fcHz);
+  const s1=[0,0,0], s2=[0,0,0], mu=[0,0,0], C=[0,0,0,0,0,0,0,0,0];
+  const nrm=v=>{ const n=Math.hypot(v[0],v[1],v[2])||1; return [v[0]/n,v[1]/n,v[2]/n]; };
+  let e=nrm([0.80,0.45,0.40]), tPrev=null, n=0, env=c.minAmp/c.k, state=0, lastCross=-1e9, cycles=0;
+  return {
+    push(s){
+      let dt=tPrev==null?16.7:s.t-tPrev; tPrev=s.t; dt=clamp(dt,4,60); n++;
+      const a=dt/(RC+dt), x=[s.lx,s.ly,s.lz];
+      for(let i=0;i<3;i++){ s1[i]+=a*(x[i]-s1[i]); s2[i]+=a*(s1[i]-s2[i]); }
+      const b=Math.max(dt/1500, 1/(n+1));                    // 처음엔 빨리, 이후엔 약 1.5초 기억
+      for(let i=0;i<3;i++) mu[i]+=b*(s2[i]-mu[i]);
+      const v=[s2[0]-mu[0], s2[1]-mu[1], s2[2]-mu[2]];
+      for(let i=0;i<3;i++) for(let j=0;j<3;j++) C[i*3+j]+=b*(v[i]*v[j]-C[i*3+j]);
+      const ne=[C[0]*e[0]+C[1]*e[1]+C[2]*e[2], C[3]*e[0]+C[4]*e[1]+C[5]*e[2], C[6]*e[0]+C[7]*e[1]+C[8]*e[2]];
+      if(Math.hypot(ne[0],ne[1],ne[2])>1e-9) e=nrm(ne);       // 거듭제곱법으로 주 흔들림 축 추적
+      const u=v[0]*e[0]+v[1]*e[1]+v[2]*e[2];
+      env=Math.max(Math.abs(u), env*(1-dt/1000));              // 최근 1초 진폭
+      const h=Math.max(c.minAmp, c.k*env);
+      let counted=false;
+      if(u>h){ if(state===-1 && s.t-lastCross>=c.minPeriod){ cycles++; lastCross=s.t; counted=true; } state=1; }
+      else if(u<-h){ state=-1; }
+      return counted;
+    },
+    get cycles(){ return cycles; }
+  };
+}
+function sprintScore(cycles){ const c=TUNE.sprint; return toScore(lerp01(cycles,c.minCount,c.maxCount)); }
+
+/* 펀치 스피드: 선형 가속도(중력 제외) 크기의 피크 = 펀치 1회. 한 펀치 안에서 더 큰 피크가 나오면 그 값으로 갱신(합침) */
+function createLinearAccel(alpha){
+  // 기기가 중력 제외 가속도를 안 줄 때: 느린 저역통과로 중력을 추정해 빼요
+  const k=alpha||0.02; let gx=null, gy=0, gz=0;
+  const vec=(ax,ay,az)=>{ if(gx===null){ gx=ax; gy=ay; gz=az; } gx+=k*(ax-gx); gy+=k*(ay-gy); gz+=k*(az-gz); return [ax-gx, ay-gy, az-gz]; };
+  return { vec, push(ax,ay,az){ const v=vec(ax,ay,az); return Math.hypot(v[0],v[1],v[2]); } };
+}
+function createPunchDetector(opts){
+  const c=Object.assign({}, TUNE.punch, opts);
+  let p2=0, p1=0, tp1=0, last=-1e9, amp=c.floor/c.k, n=0; const punches=[];
+  return {
+    push(s){
+      const x=s.lm; n++;
+      amp=Math.max(c.floor/c.k, amp*0.998);
+      let hit=null;
+      if(n>=3 && p1>p2 && p1>=x){
+        const thr=Math.max(c.floor, c.k*amp);
+        if(p1>thr){
+          if(tp1-last>=c.minGap){ last=tp1; amp+=0.3*(p1-amp); hit={t:tp1, peak:p1}; punches.push(hit); }
+          else if(punches.length && p1>punches[punches.length-1].peak){ const lp=punches[punches.length-1]; amp+=0.3*(p1-lp.peak); lp.peak=p1; }
+        }
+      }
+      p2=p1; p1=x; tp1=s.t;
+      return hit;
+    },
+    get punches(){ return punches; }
+  };
+}
+function summarizePunch(punches){
+  const T=TUNE.punch, n=punches.length;
+  if(!n) return { count:0, peak:0, avg:0, peakIdx:-1, peakG:0, avgG:0, perSec:0, peakScore:0, countScore:0, score:0 };
+  const peaks=punches.map(p=>p.peak), peak=Math.max(...peaks), avg=peaks.reduce((a,b)=>a+b,0)/n;
+  const peakScore=toScore(lerp01(peak,T.minPeak,T.maxPeak)), countScore=toScore(lerp01(n,T.minCount,T.maxCount));
+  return { count:n, peak, avg, peakIdx:peaks.indexOf(peak), peakG:peak/G, avgG:avg/G, perSec:n/T.seconds,
+    peakScore, countScore, score:Math.round(T.wPeak*peakScore+(1-T.wPeak)*countScore) };
+}
+
+/* 기합: 마이크 RMS → dBFS. 기기마다 달라서 '상대 dB'(=dBFS+100)로 보여줘요 */
+function dbfs(rms){ return 20*Math.log10(Math.max(rms,1e-6)); }
+function relDb(d){ return Math.round(d+100); }
+function shoutScore(d){ return toScore(lerp01(d, TUNE.shout.minDb, TUNE.shout.maxDb)); }
+
+/* 선수 유형 */
+const AXES = [
+  {id:'jump',     key:'POWER',    ko:'파워'},
+  {id:'reaction', key:'REACTION', ko:'반응'},
+  {id:'balance',  key:'BALANCE',  ko:'밸런스'},
+  {id:'sprint',   key:'SPEED',    ko:'스피드'},
+  {id:'punch',    key:'PUNCH',    ko:'펀치'},
+  {id:'shout',    key:'SPIRIT',   ko:'기합'}
+];
+function classify(scores){
+  const vals=AXES.filter(a=>scores[a.id]!=null).map(a=>scores[a.id]);
+  if(!vals.length) vals.push(0);
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length, min=Math.min(...vals), max=Math.max(...vals);
+  let typeKey;
+  if(min>=60 || (avg>=70 && max-min<=20)) typeKey='ALL';
+  else { let bi=0; vals.forEach((v,i)=>{ if(v>vals[bi]) bi=i; }); typeKey=AXES[bi].key; }
+  const tier = avg>=90?'LEGEND' : avg>=75?'ELITE' : avg>=60?'ATHLETE' : avg>=40?'CHALLENGER' : 'ROOKIE';
+  return { typeKey, tier, avg:Math.round(avg) };
+}
+// ==ALGO-END==
+
+/* ====================================================================
+   APP
+   ==================================================================== */
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const CANCEL=Symbol('cancel');
+const STORE_KEY='kye3_motionlab_v1';
+const state={ scores:{}, labels:{}, name:'', demo:false };
+try{ const j=JSON.parse(localStorage.getItem(STORE_KEY)||'null'); if(j){ state.scores=j.scores||{}; state.labels=j.labels||{}; state.name=j.name||''; } }catch(e){}
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({scores:state.scores,labels:state.labels,name:state.name})); }catch(e){} }
+function track(event,params){ try{ (window.dataLayer=window.dataLayer||[]).push(Object.assign({event},params||{})); }catch(e){} }
+let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2200); }
+
+/* ---------- audio / vibration / wake lock ---------- */
+let AC=null;
+function audio(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC&&AC.state==='suspended'){ try{AC.resume();}catch(e){} } return AC; }
+function beep(freq,dur,vol){ const ac=audio(); if(!ac) return; try{ const o=ac.createOscillator(), g=ac.createGain(), t=ac.currentTime, v=vol||0.25; o.type='sine'; o.frequency.value=freq||880; o.connect(g); g.connect(ac.destination); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.12)); o.start(t); o.stop(t+(dur||0.12)+0.03); }catch(e){} }
+function buzz(p){ try{ navigator.vibrate&&navigator.vibrate(p); }catch(e){} }
+let wl=null; async function keepAwake(on){ try{ if(on&&navigator.wakeLock){ wl=await navigator.wakeLock.request('screen'); } else if(wl){ await wl.release(); wl=null; } }catch(e){} }
+
+/* ---------- sensors ---------- */
+const Sensors={
+  ready:false, count:0, sink:null, lin:createLinearAccel(0.02),
+  _h(e){
+    const a=e.accelerationIncludingGravity; if(!a||a.x==null||a.y==null||a.z==null) return;
+    const r=e.rotationRate||{};
+    const now=performance.now();
+    const t=(e.timeStamp && Math.abs(e.timeStamp-now)<2000) ? e.timeStamp : now;
+    const gm=(r.alpha!=null&&r.beta!=null&&r.gamma!=null)?Math.hypot(r.alpha,r.beta,r.gamma):null;
+    const la=e.acceleration, lv=Sensors.lin.vec(a.x,a.y,a.z), okLin=la && la.x!=null && la.y!=null && la.z!=null;
+    const lx=okLin?la.x:lv[0], ly=okLin?la.y:lv[1], lz=okLin?la.z:lv[2], lm=Math.hypot(lx,ly,lz);
+    Sensors.count++;
+    if(Sensors.sink) Sensors.sink({ t, ax:a.x, ay:a.y, az:a.z, mag:Math.hypot(a.x,a.y,a.z), lm, lx, ly, lz, gm });
+  },
+  async ensure(){
+    if(this.ready) return 'ok';
+    if(typeof DeviceMotionEvent==='undefined') return 'none';
+    if(typeof DeviceMotionEvent.requestPermission==='function'){
+      try{ const r=await DeviceMotionEvent.requestPermission(); if(r!=='granted') return 'denied'; }catch(e){ return 'denied'; }
+    }
+    window.addEventListener('devicemotion', this._h);
+    const ok=await new Promise(res=>{ const t0=performance.now(); const iv=setInterval(()=>{ if(Sensors.count>0){ clearInterval(iv); res(true); } else if(performance.now()-t0>1500){ clearInterval(iv); res(false); } },50); });
+    if(!ok){ window.removeEventListener('devicemotion', this._h); return 'none'; }
+    this.ready=true; return 'ok';
+  }
+};
+
+/* ---------- icons ---------- */
+const svg=p=>`<svg class="ico" viewBox="0 0 24 24">${p}</svg>`;
+const ICON={
+  jump:svg('<path d="M12 18V5M6 11l6-6 6 6"/><path d="M5 21h14"/>'),
+  reaction:svg('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'),
+  balance:svg('<circle cx="12" cy="4.5" r="2"/><path d="M12 7v6.5M7 9.5h10M12 13.5L10 21M12 13.5l4.5 2.5L14 19"/>'),
+  sprint:svg('<path d="M5 6l6 6-6 6M13 6l6 6-6 6"/>'),
+  punch:svg('<path d="M3 12h9M8 8l4 4-4 4"/><circle cx="18" cy="12" r="3.5"/>'),
+  shout:svg('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a5 5 0 010 8M19 5a9 9 0 010 14"/>')
+};
+
+/* ---------- events config ---------- */
+const EVENTS=[
+ {id:'reaction', name:'리액션 탭', en:'REACTION TAP', axis:'반응', tag:'신호가 뜨면 최대한 빨리 터치', needs:'none',
+  how:['폰을 한 손에 들고, 다른 손 검지를 화면 위에서 준비해요. (PC는 마우스)','가만히 기다리면 랜덤한 타이밍에 라임색 원이 화면 어딘가에 나타나요. 보이는 순간 최대한 빨리 터치!','원이 나오기 전에 누르면 부정 출발. 총 5번, 평균과 최고 기록으로 등급과 랭킹이 정해져요.'],
+  warn:'화면에서 눈을 떼지 마세요. 미리 누르면 그 라운드는 무효예요.'},
+ {id:'sprint', name:'제자리 팔치기', en:'20s ARM SWING', axis:'스피드', tag:'폰을 쥐고 20초, 팔을 앞뒤로 몇 번 흔드나', needs:'motion',
+  how:['폰을 한 손에 꽉 쥐어요. 손목 스트랩이 있으면 걸어요. 어느 방향으로 쥐어도 돼요.','신호음이 울리면 20초 동안 팔꿈치를 접고 팔을 앞뒤로 최대한 빠르게 흔들어요. 서서 팔만 흔들어도 돼요.','폰이 앞뒤로 한 번 왕복할 때마다 1회로 세요.'],
+  warn:'폰이 손에서 빠지지 않게 꽉 쥐고, 주변에 사람이나 물건이 없는지 확인하세요.'},
+ {id:'punch', name:'펀치 스피드', en:'PUNCH SPEED', axis:'펀치', tag:'10초 동안 가볍게 연속 펀치', needs:'motion',
+  how:['폰을 손목 안쪽(시계 위치)에 러닝 암밴드나 손목 밴드로 단단히 고정해요. 밴드가 없으면 주먹으로 꽉 쥐고 손목 스트랩을 걸어요.','3초 카운트 뒤 10초 동안, 폰을 찬 손으로 허공에 가볍게 연속 펀치를 날려요. 힘보다 빠르게!','최고 가속도 피크와 연속 펀치 횟수로 점수가 정해져요. 실제 펀치 속도(km/h)가 아니라 상대 지표예요.'],
+  warn:'사람·벽·물건을 치지 말고 허공에서 가볍게 하세요. 폰이 빠지지 않게 꽉 고정하세요.'},
+ {id:'balance', name:'한발 밸런스', en:'ONE-LEG BALANCE · EYES CLOSED', axis:'밸런스', tag:'눈 감고 왼발·오른발 15초씩', needs:'motion',
+  how:['폰을 두 손으로 가슴 앞에 붙여 잡아요. 허리춤 주머니에 넣어도 돼요. 벽이나 의자 옆에서 하세요.','5초 준비 뒤 신호음이 울리면 눈을 감고 왼발로 15초, 발을 바꿔 오른발로 15초를 버텨요. 시간은 소리와 진동으로 알려줘요.','오래 버티는 것보다 얼마나 안 흔들렸는지가 점수예요. 휘청이면 눈을 뜨고 발을 내려도 돼요. 땅에 닿은 순간까지만 측정돼요.'],
+  warn:'눈을 감으면 넘어지기 쉬워요. 벽·의자 옆, 주변이 비어 있는 곳에서 하고 무리하지 마세요.'},
+ {id:'jump', name:'버티컬 점프', en:'VERTICAL JUMP', axis:'파워', tag:'폰을 쥐고 3번 점프', needs:'motion',
+  how:['폰을 한 손에 꽉 쥐거나 바지 앞주머니에 넣어요. 손목 스트랩이 있으면 더 안전해요.','"점프!"가 뜨면 제자리에서 최대한 높이 3번 뛰어요.','착지할 때마다 기록이 찍혀요. 가장 높은 기록이 점수예요.'],
+  warn:'머리 위가 비어 있고 바닥이 평평한 곳에서 하세요.'},
+ {id:'shout', optional:true, name:'기합 데시벨', en:'SHOUT METER', axis:'기합', tag:'4초 안에 최대로 지르는 소리', needs:'mic',
+  how:['폰을 입에서 한 뼘쯤 떨어뜨려 들어요.','카운트다운 뒤 "기합!!"이 뜨면 4초 동안 힘껏 소리 질러요.','가장 큰 순간의 소리가 점수예요. 마이크 권한이 필요하고 녹음은 저장되지 않아요.'],
+  warn:'소리가 커요. 주변에 양해를 구하고 하세요.'}
+];
+EVENTS.forEach(e=>e.icon=ICON[e.id]);
+
+const TYPES={
+ POWER:{ko:'폭발형 리프터', en:'EXPLOSIVE LIFTER', desc:'땅을 박차는 힘이 남달라요. 역도·크로스핏 DNA.', kw:'역도 · 크로스핏'},
+ REACTION:{ko:'번개 스타터', en:'LIGHTNING STARTER', desc:'출발 신호에 가장 먼저 반응해요. 단거리·테니스 타입.', kw:'테니스 · 단거리'},
+ BALANCE:{ko:'균형의 달인', en:'IRON BALANCE', desc:'흔들림 없는 중심이 무기예요. 하이록스·크로스핏에서 빛나요.', kw:'하이록스 · 크로스핏'},
+ SPEED:{ko:'엔진 러너', en:'ENGINE RUNNER', desc:'발이 빠른 타입이에요. 러닝·하이록스 러너 DNA.', kw:'러닝 · 하이록스'},
+ PUNCH:{ko:'핵주먹 파이터', en:'IRON FIST', desc:'손이 빠르고 묵직해요. 복싱·크로스핏 타입.', kw:'크로스핏 · 복싱'},
+ SPIRIT:{ko:'기합 장인', en:'WAR CRY', desc:'목소리부터 이기고 시작해요. 체육관 분위기 메이커.', kw:'역도 · 크로스핏'},
+ ALL:{ko:'KYE3 올라운더', en:'ALL-ROUNDER', desc:'빈틈이 없는 타입이에요. Keep Moving Forward.', kw:'모든 종목'}
+};
+
+/* ---------- screens ---------- */
+function show(id){ ['home','event','final'].forEach(s=>{ $('#'+s).hidden = (s!==id); }); window.scrollTo(0,0); }
+let current=null, curEv=null, runId=0;
+function makeCtx(){
+  const id=++runId, cleanups=[];
+  const ctx={
+    alive:()=>id===runId,
+    check(){ if(id!==runId) throw CANCEL; },
+    wait(ms){ return new Promise((res,rej)=>setTimeout(()=>id===runId?res():rej(CANCEL),ms)); },
+    view(html){ if(id===runId) $('#stage').innerHTML=html; },
+    cleanup(fn){ cleanups.push(fn); },
+    end(){ while(cleanups.length){ try{ cleanups.pop()(); }catch(e){} } }
+  };
+  return ctx;
+}
+function cancelRun(){ runId++; if(current){ current.end(); current=null; } Sensors.sink=null; }
+
+function renderHome(){
+  const list=$('#evList'); list.innerHTML='';
+  EVENTS.forEach(ev=>{
+    const done=state.scores[ev.id]!=null;
+    const b=document.createElement('button'); b.className='evcard'+(done?' done':'');
+    b.innerHTML=`<span class="evico">${ev.icon}</span><span class="evtxt"><b>${ev.name}</b><small>${ev.tag}</small></span><span class="evstat">${done?`<em>${state.scores[ev.id]}</em><small>${state.labels[ev.id]||''}</small>`:`<small>${ev.optional?'선택 · ':''}${ev.axis}</small>`}</span>`;
+    b.onclick=()=>openEvent(ev);
+    list.appendChild(b);
+  });
+  const n=Object.keys(state.scores).length, rd=reqDone();
+  $('#progFill').style.width=(rd/REQ.length*100)+'%';
+  $('#progText').textContent=rd+' / '+REQ.length;
+  $('#startBtn').textContent = n===0?'측정 시작' : rd<REQ.length?'이어서 측정하기' : '내 선수 유형 카드 보기';
+  $('#demoBadge').hidden=!state.demo;
+  $('#demoBtn').textContent = state.demo ? '데모 모드 끄기' : '센서 없이 둘러보기 (데모)';
+  $('#resetHome').hidden = n===0;
+}
+
+function openEvent(ev){
+  cancelRun(); curEv=ev; show('event');
+  $('#evTitle').textContent=ev.name;
+  $('#evStep').textContent=ev.optional?'선택':(REQ.indexOf(ev)+1)+' / '+REQ.length;
+  $('#stage').innerHTML=`<div class="intro"><div class="bigico">${ev.icon}</div><div class="eyebrow">${ev.en} · ${ev.axis}</div><h2>${ev.name}</h2><p class="lead">${ev.tag}</p><ol class="how">${ev.how.map(h=>`<li>${h}</li>`).join('')}</ol><p class="warn">주의 · ${ev.warn}</p><button class="btn" id="goBtn">준비됐어요</button></div>`;
+  $('#goBtn').onclick=()=>begin(ev);
+  track('motionlab_event_view',{event_id:ev.id});
+}
+
+async function begin(ev){
+  audio(); // 제스처 안에서 오디오 잠금 해제
+  if(ev.needs==='motion' && !state.demo){
+    const st=await Sensors.ensure();
+    if(st!=='ok'){ showSensorError(ev, st); return; }
+  }
+  launch(ev);
+}
+
+function showSensorError(ev, code){
+  const msgs={
+    denied:['동작 센서 권한이 꺼져 있어요','이 기능은 폰의 동작 센서를 써요. iPhone은 설정 → Safari → "동작 및 방향 접근"을 켜고 새로고침해 주세요. Android는 사이트 설정에서 "동작 센서"를 허용해 주세요.'],
+    none:['동작 센서를 찾지 못했어요','PC이거나, 센서를 막은 브라우저일 수 있어요. 폰의 Safari/Chrome에서 https 주소로 열어주세요. 지금은 데모 모드로 화면과 결과 카드를 먼저 볼 수 있어요.'],
+    mic:['마이크 권한이 필요해요','브라우저의 마이크 허용을 켜고 다시 시도해 주세요. 소리는 기기 안에서 크기만 재고 저장하지 않아요.']
+  };
+  const m=msgs[code]||msgs.none;
+  $('#stage').innerHTML=`<div class="errbox"><h3>${m[0]}</h3>${m[1]}</div><div class="btnrow"><button class="btn ghost" id="errBack">뒤로</button><button class="btn" id="errDemo">데모로 계속</button></div>`;
+  $('#errBack').onclick=()=>{ renderHome(); show('home'); };
+  $('#errDemo').onclick=()=>{ state.demo=true; launch(ev); };
+  track('motionlab_sensor_error',{event_id:ev.id,code});
+}
+
+async function launch(ev){
+  cancelRun();
+  const ctx=makeCtx(); current=ctx;
+  track('motionlab_event_start',{event_id:ev.id,demo:state.demo});
+  try{
+    let res;
+    if(state.demo && ev.id!=='reaction') res=await runDemo(ctx,ev);
+    else res=await RUNNERS[ev.id](ctx);
+    ctx.check();
+    ctx.end();
+    state.scores[ev.id]=res.score; state.labels[ev.id]=res.label; persist();
+    track('motionlab_event_complete',{event_id:ev.id,score:res.score,demo:state.demo});
+    showResult(ev,res);
+  }catch(e){
+    ctx.end();
+    if(e===CANCEL) return;
+    if(e && e.code){ showSensorError(ev,e.code); return; }
+    console.error(e);
+    $('#stage').innerHTML=`<div class="errbox"><h3>측정 중 문제가 생겼어요</h3>잠시 후 다시 시도해 주세요.</div><button class="btn" id="errRetry" style="margin-top:12px">다시 시도</button>`;
+    $('#errRetry').onclick=()=>openEvent(ev);
+  }
+}
+
+/* ---------- result builders ---------- */
+function tierText(s){ return s>=90?'괴물 등장.':s>=75?'상위권이에요.':s>=50?'좋아요, 평균 이상!':s>=25?'워밍업 단계예요.':'몸 좀 풀고 다시 도전!'; }
+function buildJump(found){
+  const best=found.length?Math.max(...found.map(j=>j.height)):0;
+  const bestFlight=found.length?Math.max(...found.map(j=>j.flight)):0;
+  return { score:jumpScore(best), main:best?best.toFixed(1):'—', unit:'cm', label:best?best.toFixed(1)+'cm':'—',
+    note: best?'':'점프가 감지되지 않았어요. 폰을 더 꽉 쥐거나 주머니에 넣고 다시 시도해 보세요.',
+    sub: found.map((j,i)=>[(i+1)+'번째 점프', j.height.toFixed(1)+' cm']).concat(best?[['최대 체공시간', bestFlight.toFixed(2)+' s']]:[]) };
+}
+const RK_KEY='kye3_motionlab_rx_v1';
+function loadRank(){ try{ const j=JSON.parse(localStorage.getItem(RK_KEY)||'[]'); return Array.isArray(j)?j:[]; }catch(e){ return []; } }
+function saveRank(l){ try{ localStorage.setItem(RK_KEY,JSON.stringify(l)); }catch(e){} }
+function rankHtml(rank,avg,r,id){
+  const rows=r.list.slice(0,5).map((e,i)=>`<li class="${e.id===id?'me':''}"><span>${i+1}</span><b>${e.avg} ms</b><small>최고 ${e.best}${e.id===id?' · 이번':''}</small></li>`).join('');
+  const out=r.pos>5?`<div class="fine" style="margin:8px 2px 0">이번 기록은 내 기기 기록 중 ${r.pos}위예요.</div>`:'';
+  return `<div class="rankbox"><div class="rk"><b class="grade g${rank.grade}">${rank.grade}</b><div><strong>${rank.name}</strong><small>평균 ${avg}ms 기준 등급</small></div></div><div class="rklist"><div class="t">내 기기 랭킹 TOP 5</div><ol>${rows}</ol>${out}</div></div>`;
+}
+function buildReaction(rounds){
+  const S=summarizeReaction(rounds), T=TUNE.react;
+  const avg=S.avg!=null?Math.round(S.avg):null, best=S.best!=null?Math.round(S.best):null;
+  let extra='', note='';
+  if(!S.valid) note='유효한 기록이 없어요. 원이 나타난 뒤에 터치하세요.';
+  else if(S.valid<3) note='유효 기록이 '+S.valid+'/'+T.rounds+'회라 랭킹에는 기록되지 않았어요.';
+  else {
+    const id=Date.now(); const r=addRanking(loadRank(),{id,avg,best,d:id},20); saveRank(r.list);
+    extra=rankHtml(S.rank,avg,r,id);
+    if(S.valid<T.rounds) note='유효 기록 '+S.valid+'/'+T.rounds+'회.';
+  }
+  return { score:S.score, main:avg!=null?String(avg):'—', unit:'ms 평균', label:avg!=null?'평균 '+avg+'ms':'—', note, extra,
+    sub:[['평균 반응속도',avg!=null?avg+' ms':'—'],['최고 기록',best!=null?best+' ms':'—']].concat(rounds.map((r,i)=>['ROUND '+(i+1), r.ms!=null?Math.round(r.ms)+' ms':(r.falseStart?'부정 출발':'반응 없음')])) };
+}
+function buildBalance(legs){
+  const T=TUNE.balance, names=['왼발','오른발'];
+  const score=Math.round((legs[0].score+legs[1].score)/2);
+  const diff=Math.abs(legs[0].score-legs[1].score), better=legs[0].score>=legs[1].score?'왼발':'오른발';
+  const notes=[]; legs.forEach((s,i)=>{ if(s.touched) notes.push(names[i]+'은 '+s.hold+'초에 발이 땅에 닿았어요.'); });
+  return { score, main:String(score), unit:'점', label:'좌 '+legs[0].score+' · 우 '+legs[1].score, note:notes.join(' '),
+    sub: legs.map((s,i)=>[names[i], s.score+'점 · 안정 '+s.steady+'% · '+Math.min(s.hold,T.legSec)+'/'+T.legSec+'s']).concat([['좌우 차이', diff<=5?'거의 같아요':better+'이 '+diff+'점 더 안정적']]) };
+}
+function buildSprint(cycles){
+  const T=TUNE.sprint, hz=cycles/T.seconds;
+  return { score:sprintScore(cycles), main:String(cycles), unit:'회 (앞뒤 왕복)', label:cycles+'회',
+    note: cycles<8?'폰이 거의 흔들리지 않았어요. 폰을 꽉 쥐고 팔을 더 크게 앞뒤로 흔들어 보세요.':'',
+    sub:[['초당 왕복', hz.toFixed(1)+' 회']] };
+}
+function buildPunch(punches){
+  const S=summarizePunch(punches), T=TUNE.punch;
+  const g1=v=>v.toFixed(1);
+  const disclaimer='<p class="fine" style="margin:12px 2px 0">※ 실제 펀치 속도(km/h)가 아니라, 폰이 느낀 가속도를 바탕으로 한 상대 지표예요. 폰 위치와 기기에 따라 값이 달라요.</p>';
+  if(!S.count) return { score:0, main:'—', unit:'G (상대)', label:'—', extra:disclaimer,
+    note:'펀치가 감지되지 않았어요. 폰을 손목에 더 단단히 고정하고, 조금 더 빠르게 휘둘러 보세요.', sub:[['연속 펀치 횟수','0 회']] };
+  return { score:S.score, main:g1(S.peakG), unit:'G (상대)', label:g1(S.peakG)+'G · '+S.count+'회', extra:disclaimer, note:'',
+    sub:[['가장 빠른 펀치', (S.peakIdx+1)+'번째 · '+g1(S.peakG)+' G'],['평균 피크', g1(S.avgG)+' G'],['연속 펀치 횟수', S.count+' 회'],['초당 펀치', S.perSec.toFixed(1)+' 회'],['피크 점수 · 횟수 점수', S.peakScore+' · '+S.countScore]] };
+}
+function shoutLevel(d){ const r=relDb(d); return r>=92?'체육관이 울려요':r>=84?'역도장 기합급':r>=72?'응원 소리':r>=60?'대화보다 조금 큰 정도':'속삭임에 가까워요'; }
+function buildShout(d){
+  const r=relDb(d);
+  return { score:shoutScore(d), main:String(Math.max(0,r)), unit:'dB (상대)', label:Math.max(0,r)+'dB',
+    note: d<-70?'소리가 거의 잡히지 않았어요. 마이크 가까이에서 다시 질러보세요.':'',
+    sub:[['등급', shoutLevel(d)],['기기 마이크 기준값', 'dBFS '+d.toFixed(1)]] };
+}
+
+/* ---------- shared UI helpers ---------- */
+async function countdown(ctx,n,label){
+  for(let i=n;i>0;i--){
+    ctx.view(`<div class="cd"><div class="cdl">${label}</div><div class="cdn">${i}</div></div>`);
+    beep(i===1?740:520,0.08); await ctx.wait(1000);
+  }
+}
+
+/* ---------- runners ---------- */
+const RUNNERS={};
+
+RUNNERS.jump=async function(ctx){
+  await countdown(ctx,3,'폰을 꽉 쥐고 가만히');
+  keepAwake(true); ctx.cleanup(()=>keepAwake(false));
+  ctx.view(`<div class="measure"><div class="status">점프!</div><div class="dots" id="jmDots"><i></i><i></i><i></i></div><div class="jlist" id="jmList"></div><div class="timer" id="jmTime">15</div><button class="btn ghost" id="jmDone">측정 종료</button></div>`);
+  beep(988,0.2); buzz(80);
+  const det=createJumpDetector(); const found=[];
+  await new Promise(resolve=>{
+    const t0=performance.now(); let fin=false, iv=null;
+    const finish=()=>{ if(fin) return; fin=true; Sensors.sink=null; clearInterval(iv); resolve(); };
+    iv=setInterval(()=>{ const left=Math.max(0,15-(performance.now()-t0)/1000); const el=$('#jmTime'); if(el) el.textContent=Math.ceil(left); if(left<=0) finish(); },200);
+    ctx.cleanup(finish);
+    const done=$('#jmDone'); if(done) done.onclick=finish;
+    Sensors.sink=s=>{
+      const j=det.push(s); if(!j) return;
+      found.push(j); beep(660,0.1); buzz(40);
+      const dots=document.querySelectorAll('#jmDots i'); if(dots[found.length-1]) dots[found.length-1].classList.add('on');
+      const l=$('#jmList'); if(l) l.insertAdjacentHTML('beforeend',`<div>${found.length}번째 · ${j.height.toFixed(1)} cm</div>`);
+      if(found.length>=3) setTimeout(finish,700);
+    };
+  });
+  ctx.check();
+  return buildJump(found);
+};
+
+function reactionRound(ctx){
+  return new Promise(resolve=>{
+    const T=TUNE.react, rx=$('#rx'), msg=$('#rxm'), tgt=$('#tgt'), sub=rx.querySelector('.rxs');
+    let phase='wait', goT=0; const timers=[];
+    const finish=o=>{ if(phase==='done') return; phase='done'; rx.onpointerdown=null; tgt.onpointerdown=null; timers.forEach(clearTimeout); resolve(o); };
+    ctx.cleanup(()=>finish({cancelled:true}));
+    rx.onpointerdown=()=>{ if(phase==='wait') finish({falseStart:true}); };
+    tgt.onpointerdown=e=>{
+      e.stopPropagation();
+      if(phase!=='go') return;
+      const ms=performance.now()-goT;
+      finish(ms<T.minValid?{falseStart:true}:{ms});
+    };
+    const delay=T.minDelay+Math.random()*(T.maxDelay-T.minDelay);
+    timers.push(setTimeout(()=>{
+      if(phase!=='wait') return;
+      const S=104, w=rx.clientWidth, h=rx.clientHeight;
+      tgt.style.left=Math.round(Math.random()*Math.max(0,w-S))+'px';
+      tgt.style.top=Math.round(Math.random()*Math.max(0,h-S))+'px';
+      tgt.hidden=false; msg.style.visibility='hidden'; sub.textContent='지금 터치!';
+      phase='armed';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(phase==='armed'){ goT=performance.now(); phase='go'; } }));
+      timers.push(setTimeout(()=>finish({miss:true}),T.maxWait));
+    },delay));
+  });
+}
+RUNNERS.reaction=async function(ctx){
+  const T=TUNE.react, rounds=[];
+  for(let r=1;r<=T.rounds;r++){
+    ctx.view(`<div class="react" id="rx"><div class="rxr">ROUND ${r} / ${T.rounds}</div><div class="rxm" id="rxm">기다려요…</div><div class="rxs">원이 나타나면 최대한 빨리 터치!<br>미리 누르면 부정 출발</div><button class="tgt" id="tgt" hidden>TAP</button></div>`);
+    const o=await reactionRound(ctx);
+    ctx.check();
+    rounds.push(o);
+    const rx=$('#rx'), msg=$('#rxm'), sub=rx.querySelector('.rxs');
+    $('#tgt').hidden=true; msg.style.visibility='visible'; sub.textContent='';
+    if(o.ms!=null){ msg.textContent=Math.round(o.ms)+' ms'; }
+    else { rx.className='react bad'; msg.textContent=o.falseStart?'부정 출발!':'반응 없음'; buzz(120); }
+    await ctx.wait(1200);
+  }
+  return buildReaction(rounds);
+};
+
+RUNNERS.balance=async function(ctx){
+  const T=TUNE.balance, names=['왼발','오른발'], sums=[], V=0.4; // 눈을 감고 듣는 신호라 소리를 조금 크게
+  keepAwake(true); ctx.cleanup(()=>keepAwake(false));
+  for(let li=0;li<2;li++){
+    const prep=li===0?T.prepSec:T.switchSec;
+    for(let i=prep;i>0;i--){
+      const label=li===0 ? `폰을 가슴 앞에 붙이고 ${names[li]}로 서요<br><b>신호음이 울리면 눈을 감아요</b>` : `눈을 뜨고 발을 바꿔요<br><b>${names[li]}로 서요</b>`;
+      ctx.view(`<div class="cd"><div class="cdl">${label}</div><div class="cdn">${i}</div></div>`);
+      if(i<=3) beep(520,0.08,V);
+      await ctx.wait(1000);
+    }
+    beep(1175,0.6,0.45); buzz(300); // 눈 감기 신호
+    ctx.view(`<div class="measure"><div class="eyebrow">${li+1} / 2</div><div class="status dim">눈 감고<br>${names[li]}로 버텨요</div></div>`);
+    const buckets=[]; let cur=[];
+    await new Promise(resolve=>{
+      let sec=0, iv=null, fin=false;
+      const finish=()=>{ if(fin) return; fin=true; Sensors.sink=null; clearInterval(iv); resolve(); };
+      ctx.cleanup(finish);
+      Sensors.sink=s=>cur.push(s);
+      iv=setInterval(()=>{
+        buckets.push(bucketWobble(cur)); cur=[]; sec++;
+        if(sec===5||sec===10) beep(660,0.1,V);                 // 중간 체크
+        else if(sec>=T.legSec-3 && sec<T.legSec) beep(880,0.1,V); // 마지막 3초
+        if(sec>=T.legSec) finish();
+      },1000);
+    });
+    ctx.check();
+    sums.push(balanceSummary(buckets,T.legSec));
+    beep(1175,0.15,0.45); setTimeout(()=>beep(1175,0.5,0.45),220); buzz([150,80,300]); // 눈 뜨기 신호
+  }
+  return buildBalance(sums);
+};
+
+RUNNERS.sprint=async function(ctx){
+  const T=TUNE.sprint;
+  await countdown(ctx,3,'폰을 한 손에 꽉 쥐고<br>팔 스윙 준비');
+  keepAwake(true); ctx.cleanup(()=>keepAwake(false));
+  ctx.view(`<div class="measure"><div class="status">흔들어요!</div><div class="timer big"><span id="spT">${T.seconds}</span><small>초</small></div><div class="bignum"><span id="spN">0</span><small>회</small></div><div class="fine" style="margin:0">폰이 앞뒤로 왕복한 횟수</div></div>`);
+  beep(1175,0.4); buzz(200);
+  const sc=createSwingCounter();
+  await new Promise(resolve=>{
+    const t0=performance.now(); let fin=false, iv=null, lastMark=0;
+    const finish=()=>{ if(fin) return; fin=true; Sensors.sink=null; clearInterval(iv); resolve(); };
+    ctx.cleanup(finish);
+    Sensors.sink=s=>{ if(sc.push(s)){ const n=$('#spN'); if(n) n.textContent=sc.cycles; } };
+    iv=setInterval(()=>{
+      const el=(performance.now()-t0)/1000, left=Math.max(0,T.seconds-el);
+      const t=$('#spT'); if(t) t.textContent=Math.ceil(left);
+      const mark=Math.floor(el/5); if(mark>lastMark && el<T.seconds-1){ lastMark=mark; beep(660,0.08); }
+      if(left<=0) finish();
+    },100);
+  });
+  ctx.check();
+  beep(1175,0.15); setTimeout(()=>beep(1175,0.15),220); setTimeout(()=>beep(1175,0.4),440); buzz([150,80,150,80,300]);
+  return buildSprint(sc.cycles);
+};
+
+RUNNERS.punch=async function(ctx){
+  const T=TUNE.punch;
+  await countdown(ctx,3,'폰을 손목에 단단히 고정하고<br>펀치 자세');
+  keepAwake(true); ctx.cleanup(()=>keepAwake(false));
+  ctx.view(`<div class="measure"><div class="status">펀치!</div><div class="timer big" id="puT">${T.seconds}</div><div class="bignum"><span id="puN">0</span><small>회</small></div><div class="fine" id="puP" style="margin:0">최고 0.0 G</div></div>`);
+  beep(1175,0.4); buzz(200);
+  const det=createPunchDetector();
+  await new Promise(resolve=>{
+    const t0=performance.now(); let fin=false, iv=null, lastMark=0;
+    const finish=()=>{ if(fin) return; fin=true; Sensors.sink=null; clearInterval(iv); resolve(); };
+    ctx.cleanup(finish);
+    Sensors.sink=s=>{
+      if(!det.push(s)) return;
+      beep(1500,0.03,0.12); buzz(15);
+      const n=$('#puN'); if(n) n.textContent=det.punches.length;
+    };
+    iv=setInterval(()=>{
+      const el=(performance.now()-t0)/1000, left=Math.max(0,T.seconds-el);
+      const t=$('#puT'); if(t) t.textContent=Math.ceil(left);
+      const pk=$('#puP'); if(pk){ const m=det.punches.reduce((a,p)=>Math.max(a,p.peak),0); pk.textContent='최고 '+(m/G).toFixed(1)+' G'; }
+      const mark=Math.floor(el/5); if(mark>lastMark && el<T.seconds-1){ lastMark=mark; beep(660,0.08); }
+      if(left<=0) finish();
+    },100);
+  });
+  ctx.check();
+  beep(1175,0.15); setTimeout(()=>beep(1175,0.15),220); setTimeout(()=>beep(1175,0.4),440); buzz([150,80,150,80,300]);
+  return buildPunch(det.punches);
+};
+
+RUNNERS.shout=async function(ctx){
+  let stream=null, ac2=null;
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  }catch(e){ throw {code:'mic'}; }
+  ctx.cleanup(()=>{ try{stream.getTracks().forEach(t=>t.stop());}catch(e){} try{ac2&&ac2.close();}catch(e){} });
+  const AcCls=window.AudioContext||window.webkitAudioContext; ac2=new AcCls();
+  try{ await ac2.resume(); }catch(e){}
+  const an=ac2.createAnalyser(); an.fftSize=1024;
+  ac2.createMediaStreamSource(stream).connect(an);
+  const f32=new Float32Array(an.fftSize), u8=new Uint8Array(an.fftSize);
+  const readRms=()=>{
+    let q=0;
+    if(an.getFloatTimeDomainData){ an.getFloatTimeDomainData(f32); for(let i=0;i<f32.length;i++) q+=f32[i]*f32[i]; return Math.sqrt(q/f32.length); }
+    an.getByteTimeDomainData(u8); for(let i=0;i<u8.length;i++){ const v=(u8[i]-128)/128; q+=v*v; } return Math.sqrt(q/u8.length);
+  };
+  await countdown(ctx,3,'폰을 입에서 한 뼘 거리로');
+  ctx.view(`<div class="measure"><div class="status">기합!!!</div><div class="bignum"><span id="shN">0</span><small>dB</small></div><div class="meter"><i id="shBar"></i><u id="shPk"></u></div><div class="timer" id="shT">4</div></div>`);
+  beep(1175,0.25); buzz(150);
+  let peak=-120; const ring=[]; const t0=performance.now();
+  await new Promise(resolve=>{
+    const tick=()=>{
+      if(!ctx.alive()) return resolve();
+      const now=performance.now(); const r=readRms();
+      ring.push(r*r); if(ring.length>3) ring.shift();
+      const d=dbfs(Math.sqrt(ring.reduce((a,b)=>a+b,0)/ring.length));
+      if(d>peak) peak=d;
+      const n=$('#shN'); if(n) n.textContent=Math.max(0,relDb(d));
+      const bar=$('#shBar'); if(bar) bar.style.width=(lerp01(d,TUNE.shout.minDb,TUNE.shout.maxDb)*100)+'%';
+      const pk=$('#shPk'); if(pk) pk.style.left=(lerp01(peak,TUNE.shout.minDb,TUNE.shout.maxDb)*100)+'%';
+      const t=$('#shT'); if(t) t.textContent=Math.max(0,Math.ceil(4-(now-t0)/1000));
+      if(now-t0>=4000) return resolve();
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+  ctx.check();
+  return buildShout(peak);
+};
+
+/* ---------- demo (센서 없을 때 화면/카드 확인용) ---------- */
+async function runDemo(ctx,ev){
+  ctx.view(`<div class="cd"><div class="cdl">데모 측정 중…</div><div class="cdn">…</div></div>`);
+  await ctx.wait(1300);
+  const r=Math.random;
+  switch(ev.id){
+    case 'jump':{ const h=24+r()*28; return buildJump([{height:h*0.92,flight:Math.sqrt(8*h*0.92/100/G)},{height:h,flight:Math.sqrt(8*h/100/G)},{height:h*0.96,flight:Math.sqrt(8*h*0.96/100/G)}]); }
+    case 'balance':{ const leg=()=>{ const b=[]; for(let i=0;i<TUNE.balance.legSec;i++) b.push({acc:0.1+r()*0.5,gyro:1+r()*5}); return balanceSummary(b); }; return buildBalance([leg(),leg()]); }
+    case 'sprint': return buildSprint(Math.round(36+r()*24));
+    case 'punch':{ const n=16+Math.floor(r()*14), base=22+r()*20, ps=[]; for(let i=0;i<n;i++) ps.push({t:i*300,peak:base*(0.7+r()*0.3)}); ps[Math.floor(r()*n)].peak=base*1.1; return buildPunch(ps); }
+    case 'shout': return buildShout(-40+r()*30);
+  }
+}
+
+/* ---------- result screen ---------- */
+const REQ=EVENTS.filter(e=>!e.optional), OPT=EVENTS.find(e=>e.optional);
+const reqDone=()=>REQ.filter(e=>state.scores[e.id]!=null).length;
+function nextEvent(ev){
+  const i=EVENTS.indexOf(ev);
+  for(let k=1;k<=EVENTS.length;k++){ const e=EVENTS[(i+k)%EVENTS.length]; if(!e.optional && state.scores[e.id]==null) return e; }
+  return null;
+}
+function showResult(ev,res){
+  const next=nextEvent(ev);
+  $('#stage').innerHTML=`<div class="result"><div class="eyebrow">${ev.en}</div><div class="rmain">${res.main}<small>${res.unit}</small></div><div class="rscore">SCORE <b>${res.score}</b> / 100</div><div class="rbar"><i id="rbarFill"></i></div><p class="rcomment">${tierText(res.score)}${res.note?' '+res.note:''}</p><div class="rsub">${res.sub.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>${res.extra||''}<div class="btnrow"><button class="btn ghost" id="rRetry">다시 측정</button><button class="btn" id="rNext">${next?'다음 종목':'결과 카드 보기'}</button></div>${(!next && OPT && ev!==OPT && state.scores[OPT.id]==null)?`<button class="link" id="rOpt">${OPT.name}도 측정하기 (선택)</button>`:''}</div>`;
+  requestAnimationFrame(()=>{ const f=$('#rbarFill'); if(f) f.style.width=res.score+'%'; });
+  $('#rRetry').onclick=()=>openEvent(ev);
+  $('#rNext').onclick=()=>{ if(next) openEvent(next); else openFinal(); };
+  const ro=$('#rOpt'); if(ro) ro.onclick=()=>openEvent(OPT);
+  window.scrollTo(0,0);
+}
+
+/* ---------- final card ---------- */
+function wrapLines(c,text,maxW){
+  const words=text.split(' '); const lines=[]; let line='';
+  for(const w of words){ const t=line?line+' '+w:w; if(c.measureText(t).width>maxW && line){ lines.push(line); line=w; } else line=t; }
+  if(line) lines.push(line); return lines;
+}
+function drawCard(){
+  const cv=$('#card'), c=cv.getContext('2d'); const W=1080,H=1350;
+  const FONT='"Pretendard","Apple SD Gothic Neo","Noto Sans KR",-apple-system,"Segoe UI",sans-serif', ACC='#d4ff3a';
+  const AX=AXES.filter(a=>state.scores[a.id]!=null), sc=AX.map(a=>state.scores[a.id]);
+  const cls=classify(state.scores), T=TYPES[cls.typeKey];
+  const d=new Date(); const dateStr=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#0a0a0a'; c.fillRect(0,0,W,H);
+  const g=c.createRadialGradient(W*0.85,120,0,W*0.85,120,720); g.addColorStop(0,'rgba(212,255,58,0.16)'); g.addColorStop(1,'rgba(212,255,58,0)'); c.fillStyle=g; c.fillRect(0,0,W,H);
+  c.strokeStyle='#242424'; c.lineWidth=2; c.strokeRect(28,28,W-56,H-56);
+  c.textBaseline='alphabetic';
+  // header
+  c.textAlign='left'; c.fillStyle='#fff'; c.font=`800 46px ${FONT}`; c.fillText('KYE3',72,112);
+  const kw=c.measureText('KYE3').width;
+  c.fillStyle=ACC; c.font=`700 26px ${FONT}`; c.fillText('MOTION LAB',72+kw+18,110);
+  c.textAlign='right'; c.fillStyle='#8a8a8a'; c.font=`500 26px ${FONT}`; c.fillText(dateStr,W-72,110);
+  // radar
+  const cx=540, cy=575, R=250, N=AX.length;
+  const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/N; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
+  for(let k=1;k<=5;k++){ c.beginPath(); for(let i=0;i<N;i++){ const [x,y]=pt(i,R*k/5); i?c.lineTo(x,y):c.moveTo(x,y); } c.closePath(); c.strokeStyle=k===5?'#3a3a3a':'#262626'; c.lineWidth=2; c.stroke(); }
+  c.strokeStyle='#262626'; for(let i=0;i<N;i++){ const [x,y]=pt(i,R); c.beginPath(); c.moveTo(cx,cy); c.lineTo(x,y); c.stroke(); }
+  c.beginPath(); sc.forEach((v,i)=>{ const [x,y]=pt(i,R*Math.max(v,4)/100); i?c.lineTo(x,y):c.moveTo(x,y); }); c.closePath();
+  c.fillStyle='rgba(212,255,58,0.25)'; c.fill(); c.strokeStyle=ACC; c.lineWidth=5; c.lineJoin='round'; c.stroke();
+  sc.forEach((v,i)=>{ const [x,y]=pt(i,R*Math.max(v,4)/100); c.beginPath(); c.arc(x,y,9,0,Math.PI*2); c.fillStyle=ACC; c.fill(); });
+  c.textAlign='center';
+  AX.forEach((a,i)=>{ const [x,y]=pt(i,R+78); c.fillStyle='#fff'; c.font=`700 32px ${FONT}`; c.fillText(a.ko,x,y-4); c.fillStyle=ACC; c.font=`800 40px ${FONT}`; c.fillText(String(sc[i]),x,y+40); });
+  // tier pill
+  c.textAlign='left'; c.font=`700 28px ${FONT}`;
+  const pill=`${cls.tier} · 종합 ${cls.avg}`, pw=c.measureText(pill).width+48;
+  c.beginPath(); if(c.roundRect) c.roundRect(72,975,pw,52,26); else c.rect(72,975,pw,52);
+  c.strokeStyle=ACC; c.lineWidth=2; c.stroke(); c.fillStyle=ACC; c.fillText(pill,96,1011);
+  // type
+  c.fillStyle='#fff'; c.font=`800 96px ${FONT}`; c.fillText(T.ko,72,1124);
+  c.fillStyle=ACC; c.font=`700 28px ${FONT}`; c.fillText(T.en+'  ·  '+T.kw,72,1170);
+  c.fillStyle='#cfcfcf'; c.font=`500 30px ${FONT}`;
+  wrapLines(c,T.desc,W-144).slice(0,2).forEach((l,i)=>c.fillText(l,72,1218+i*40));
+  // footer
+  c.fillStyle='#8a8a8a'; c.font=`600 26px ${FONT}`; c.textAlign='left'; c.fillText('@kye3_official  ·  kye3.com',72,1296);
+  c.textAlign='right';
+  if(state.name){ c.fillStyle=ACC; c.font=`700 30px ${FONT}`; c.fillText(state.name,W-72,1296); }
+  else { c.fillStyle='#555'; c.font=`600 24px ${FONT}`; c.fillText('Keep Moving Forward.',W-72,1296); }
+}
+function openFinal(){
+  cancelRun(); show('final');
+  $('#nick').value=state.name; drawCard();
+  $('#shareBtn').hidden=!(navigator.share);
+  const as=$('#addShout'); as.hidden=!(OPT && state.scores[OPT.id]==null); as.onclick=()=>openEvent(OPT);
+  const cls=classify(state.scores);
+  track('motionlab_card_view',{type:cls.typeKey,tier:cls.tier,avg:cls.avg});
+}
+function cardBlob(){ return new Promise(r=>$('#card').toBlob(r,'image/png')); }
+
+/* ---------- wiring ---------- */
+$('#startBtn').onclick=()=>{
+  track('motionlab_start',{demo:state.demo});
+  if(reqDone()>=REQ.length) return openFinal();
+  openEvent(REQ.find(e=>state.scores[e.id]==null)||REQ[0]);
+};
+$('#demoBtn').onclick=()=>{ state.demo=!state.demo; renderHome(); toast(state.demo?'데모 모드를 켰어요':'데모 모드를 껐어요'); };
+$('#resetHome').onclick=()=>{ state.scores={}; state.labels={}; persist(); renderHome(); toast('기록을 초기화했어요'); };
+$('#evBack').onclick=()=>{ cancelRun(); renderHome(); show('home'); };
+$('#finBack').onclick=()=>{ renderHome(); show('home'); };
+$('#resetBtn').onclick=()=>{ state.scores={}; state.labels={}; persist(); renderHome(); show('home'); };
+let nickRaf=0;
+$('#nick').addEventListener('input',e=>{ state.name=e.target.value.trim(); persist(); cancelAnimationFrame(nickRaf); nickRaf=requestAnimationFrame(drawCard); });
+$('#saveBtn').onclick=async()=>{
+  drawCard();
+  const blob=await cardBlob(); if(!blob){ toast('저장에 실패했어요'); return; }
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='kye3-motionlab.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+  track('motionlab_card_save',{type:classify(state.scores).typeKey});
+  toast('이미지를 저장했어요');
+};
+$('#shareBtn').onclick=async()=>{
+  drawCard();
+  const blob=await cardBlob(); if(!blob) return;
+  const file=new File([blob],'kye3-motionlab.png',{type:'image/png'});
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file],title:'KYE3 MOTION LAB',text:'#KYE3 #MOTIONLAB @kye3_official'});
+    else await navigator.share({title:'KYE3 MOTION LAB',text:'나의 선수 유형 카드 @kye3_official',url:location.href});
+    track('motionlab_card_share',{type:classify(state.scores).typeKey});
+  }catch(e){}
+};
+$('#ctaBtn').addEventListener('click',()=>track('motionlab_cta_click',{where:'final'}));
+$('#topLink').addEventListener('click',()=>track('motionlab_cta_click',{where:'header'}));
+
+// 예전 버전에서 저장된 종목 기록 정리
+{ const valid=new Set(AXES.map(a=>a.id)); ['scores','labels'].forEach(k=>{ for(const id of Object.keys(state[k])) if(!valid.has(id)) delete state[k][id]; }); persist(); }
+renderHome(); show('home');
+// 테스트 훅 (로컬 점검용)
+window.__lab={ state, openFinal, renderHome, drawCard };
+})();
+</script>
+</body>
+</html>
