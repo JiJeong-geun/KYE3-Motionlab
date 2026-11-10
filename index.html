@@ -16,7 +16,7 @@
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 body{min-height:100vh;min-height:100dvh;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 input{-webkit-user-select:text;user-select:text}
-#app{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom))}
+#app{max-width:480px;margin:0 auto;padding:max(44px,calc(env(safe-area-inset-top) + 28px)) max(30px,env(safe-area-inset-right)) max(36px,env(safe-area-inset-bottom)) max(30px,env(safe-area-inset-left))}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
 a{color:inherit}
@@ -32,8 +32,10 @@ a{color:inherit}
 /* home */
 .top{display:flex;justify-content:space-between;align-items:center;padding:6px 0 18px}
 .brand{font-weight:900;font-size:20px;letter-spacing:.02em}
-.brand span{color:var(--acc);font-size:13px;font-weight:700;letter-spacing:.16em;margin-left:8px}
-.ext{color:var(--mute);font-size:13px;text-decoration:none}
+.brand{display:flex;align-items:flex-end}
+.brand .logo{height:28px;width:auto;display:block}
+.logolink{display:block;line-height:0}
+.brand span{color:var(--acc);font-size:13px;font-weight:700;letter-spacing:.16em;margin-left:16px;margin-bottom:3px;line-height:1}
 .hero h1{font-size:36px;line-height:1.18;margin:10px 0 12px;font-weight:900;letter-spacing:-.02em}
 .hero p{color:#bdbdbd;font-size:15px;line-height:1.65;margin:0 0 20px}
 .hero b{color:var(--acc)}
@@ -59,7 +61,7 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 .back{width:40px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:18px}
 .tt{text-align:center;font-weight:800;font-size:15px}
 .step{text-align:right;color:var(--mute);font-size:12.5px}
-.stagebox{min-height:calc(100dvh - 150px);display:flex;flex-direction:column;justify-content:center;padding-bottom:10px}
+.stagebox{min-height:calc(100dvh - 200px);display:flex;flex-direction:column;justify-content:center;padding-bottom:10px}
 .intro{display:flex;flex-direction:column;gap:12px}
 .bigico{width:76px;height:76px;padding:18px;border-radius:22px;background:var(--panel);border:1px solid var(--line);color:var(--acc)}
 .intro h2{font-size:32px;margin:0;font-weight:900;letter-spacing:-.01em}
@@ -72,6 +74,7 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 .cdl{color:#bdbdbd;font-size:16px;line-height:1.55;margin-bottom:8px}
 .cdl b{color:var(--acc)}
 .cdn{font-size:140px;font-weight:900;line-height:1;color:var(--acc);font-variant-numeric:tabular-nums}
+.cdn.go{font-size:92px;letter-spacing:-.02em}
 .measure{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
 .status{font-size:44px;font-weight:900;color:var(--acc);letter-spacing:-.01em}
 .status.dim{color:#3d3d3d;font-size:34px;line-height:1.35}
@@ -110,6 +113,10 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 .rmain{font-size:96px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .rmain small{font-size:26px;color:var(--mute);margin-left:8px;letter-spacing:0}
 .rscore{color:var(--mute);font-size:14px;letter-spacing:.06em}.rscore b{color:var(--acc);font-size:22px}
+.rpct{margin:12px 0 0;color:#e4e4e4;font-size:16px}.rpct:empty{display:none}.rpct b{color:var(--acc);font-size:22px}.rpct small{color:var(--mute);margin-left:8px;font-size:12px}
+.sexpick{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 6px}.sexpick .sl{font-size:14px;color:#cfcfcf}.sexpick em{font-style:normal;color:var(--mute);font-size:12px}
+.seg{display:flex;gap:6px}.seg button{padding:8px 12px;border-radius:999px;border:1px solid #333;color:#bdbdbd;font-size:13px}.seg button.on{background:var(--acc);border-color:var(--acc);color:#0a0a0a;font-weight:800}
+.sexnote{margin:0 2px 16px}
 .rbar{height:8px;border-radius:4px;background:#222;overflow:hidden}.rbar i{display:block;height:100%;background:var(--acc);width:0;transition:width .7s}
 .rcomment{margin:0;font-size:16px;line-height:1.6;color:#e4e4e4}
 .rsub{display:flex;flex-direction:column;border-top:1px solid var(--line)}
@@ -134,21 +141,21 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
   <!-- HOME -->
   <section id="home">
     <header class="top">
-      <div class="brand">KYE3<span>MOTION LAB</span></div>
-      <a class="ext" href="https://kye3.com" target="_blank" rel="noopener" id="topLink">kye3.com ↗</a>
+      <div class="brand"><a class="logolink" id="logoLink" href="https://kye3.com" target="_blank" rel="noopener" aria-label="KYE3 홈페이지 (새 창)"><img class="logo" src="data:image/png;base64,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" alt="KYE3" width="91" height="28"></a><span>MOTION LAB</span></div>
     </header>
     <div class="hero">
-      <div class="eyebrow">KEEP MOVING FORWARD</div>
-      <h1>내 몸의 스펙,<br>폰으로 재본다.</h1>
-      <p>반응속도 · 팔치기 · 펀치 · 밸런스 · 점프<br>5가지를 재고 나만의 <b>선수 유형 카드</b>를 만들어요.<br><small>기합 데시벨은 선택이에요.</small></p>
+      <h1>내 운동 능력치는<br>상위 몇 프로?</h1>
+      <p>3분 동안 측정하고 친구들과 비교해보세요.</p>
     </div>
+    <div class="sexpick"><span class="sl">성별 <em>(선택)</em></span><div class="seg" id="sexSeg"><button data-s="m">남</button><button data-s="f">여</button><button data-s="" class="on">선택 안 함</button></div></div>
+    <p class="fine sexnote">선택하지 않으면 남·녀 통합으로 상위 %가 계산돼요.</p>
     <div id="demoBadge" class="demo-badge" hidden>데모 모드 — 센서 대신 임의 값이 들어가요</div>
-    <div class="progress"><div class="bar"><i id="progFill"></i></div><span id="progText">0 / 5</span></div>
+    <div class="progress"><div class="bar"><i id="progFill"></i></div><span id="progText">0 / 6</span></div>
     <div id="evList"></div>
     <button class="btn" id="startBtn">측정 시작</button>
     <button class="link" id="demoBtn">센서 없이 둘러보기 (데모)</button>
     <button class="link" id="resetHome" hidden>기록 초기화</button>
-    <p class="fine">엔터테인먼트용 상대 측정이에요. 기기마다 오차가 있고 의학적·공식 기록이 아니에요. 주변이 비어 있는 안전한 곳에서, 무리하지 말고 즐겨주세요.</p>
+    <p class="fine">기기마다 오차가 있고 의학적·공식 기록이 아니에요.</p>
     <footer>Engineered by © KYE3 · kye3.com</footer>
   </section>
 
@@ -361,6 +368,63 @@ function classify(scores){
   const tier = avg>=90?'LEGEND' : avg>=75?'ELITE' : avg>=60?'ATHLETE' : avg>=40?'CHALLENGER' : 'ROOKIE';
   return { typeKey, tier, avg:Math.round(avg) };
 }
+/* 상위 N%: 연구 자료(임시) 또는 실제 사용자 기록 */
+const PCT={
+  minN:30,                                   // 종목별 기록이 이 수 이상이면 실제 사용자 기록을 반영 시작 (30~49건은 연구 자료와 혼합)
+  fullN:50,                                  // 이 수 이상이면 실제 사용자 기록만 사용
+  dir:{reaction:'low', balance:'high', jump:'high', sprint:'high', punch:'high', shout:'high'},
+  sexSplit:['jump'],
+  research:{
+    // 반응속도: Woods 외 2015 표(Vincent 외 2012, N=107,413) 평균 261ms, 표준편차 47ms
+    reaction:{type:'normal', mean:261, sd:47},
+    // 한발 밸런스(눈 감고): Springer 외 2007, 18~39세 3회 평균 9.4초(표준편차 9.4) → 한쪽으로 치우친 분포라 로그정규로 근사
+    balance:{type:'lognormal', mean:9.4, sd:9.4},
+    // 점프(cm): 캐나다 국민건강조사 20~24세, 힘판·팔 스윙 허용(2차 자료의 P5/P50/P95). P5·P50·P95를 지나게 근사
+    jump:{type:'sex', m:{p5:32.6,p50:49.4,p95:63.8}, f:{p5:22.8,p50:31.8,p95:41.4}}
+  }
+};
+function normCdf(z){
+  const x=Math.abs(z)/Math.SQRT2, t=1/(1+0.3275911*x);
+  const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return 0.5*(1+(z<0?-y:y));
+}
+function researchCdf(event, v, sex){
+  const r=PCT.research[event]; if(!r || v==null || !isFinite(v)) return null;
+  if(r.type==='normal') return normCdf((v-r.mean)/r.sd);
+  if(r.type==='lognormal'){
+    const s2=Math.log(1+(r.sd*r.sd)/(r.mean*r.mean)), mu=Math.log(r.mean)-s2/2;
+    return normCdf((Math.log(Math.max(v,0.3))-mu)/Math.sqrt(s2));
+  }
+  if(r.type==='sex'){
+    const one=g=>normCdf((v-g.p50)/((v<g.p50?g.p50-g.p5:g.p95-g.p50)/1.645));   // 중앙값 기준 좌우 따로 맞춘 정규분포: P5·P50·P95를 정확히 지나요
+    if(sex==='m') return one(r.m); if(sex==='f') return one(r.f);
+    return 0.5*one(r.m)+0.5*one(r.f);      // 성별 미선택: 남녀 통합
+  }
+  return null;
+}
+function researchTop(event, v, sex){
+  const c=researchCdf(event,v,sex); if(c==null) return null;
+  return clamp(Math.round((PCT.dir[event]==='low'?c:1-c)*100),1,99);
+}
+function realTop(event, st, sex){
+  if(!st) return null;
+  let n=st.n, lo=st.lower, eq=st.eq;
+  if(PCT.sexSplit.includes(event) && (sex==='m'||sex==='f') && st.sexN>=PCT.minN){ n=st.sexN; lo=st.sexLower; eq=st.sexEq; }
+  if(!(n>=PCT.minN)) return null;
+  const hi=n-lo-eq;
+  const beaten=PCT.dir[event]==='low' ? (hi+0.5*eq)/n : (lo+0.5*eq)/n;
+  return { p:clamp(Math.round((1-beaten)*100),1,99), n };
+}
+function blendTop(real, researchP){
+  if(!real) return null;
+  if(real.n>=PCT.fullN || researchP==null) return { p:real.p, n:real.n, src:'real' };   // 연구 자료가 없는 종목은 30건부터 실제 기록만
+  const w=real.n/PCT.fullN;                                                               // 30건 0.6 → 49건 0.98 (50건에서 1.0으로 이어져요)
+  return { p:clamp(Math.round((1-w)*researchP+w*real.p),1,99), n:real.n, src:'mix' };
+}
+function overallTop(list){
+  const v=list.filter(x=>x!=null); if(v.length<2) return null;
+  return Math.round(v.reduce((a,b)=>a+b,0)/v.length);
+}
 // ==ALGO-END==
 
 /* ====================================================================
@@ -371,9 +435,25 @@ function classify(scores){
 const $=(s,r=document)=>r.querySelector(s);
 const CANCEL=Symbol('cancel');
 const STORE_KEY='kye3_motionlab_v1';
-const state={ scores:{}, labels:{}, name:'', demo:false };
-try{ const j=JSON.parse(localStorage.getItem(STORE_KEY)||'null'); if(j){ state.scores=j.scores||{}; state.labels=j.labels||{}; state.name=j.name||''; } }catch(e){}
-function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({scores:state.scores,labels:state.labels,name:state.name})); }catch(e){} }
+const state={ scores:{}, labels:{}, pct:{}, sex:'', name:'', demo:false };
+try{ const j=JSON.parse(localStorage.getItem(STORE_KEY)||'null'); if(j){ state.scores=j.scores||{}; state.labels=j.labels||{}; state.name=j.name||''; state.pct=j.pct||{}; state.sex=(j.sex==='m'||j.sex==='f')?j.sex:''; } }catch(e){}
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({scores:state.scores,labels:state.labels,pct:state.pct,sex:state.sex,name:state.name})); }catch(e){} }
+/* 실제 사용자 기록 서버(Cloudflare Worker). 배포 후 주소를 넣으면 켜져요. 비어 있으면 연구 자료만 써요. */
+const API_BASE='';   // 예: 'https://motionlab-api.내계정.workers.dev'
+const lastMetric={};
+function pctRowHtml(id){ const p=state.pct[id]; if(!p) return ''; return '상위 <b>'+p.p+'%</b>'; }
+function applyResearchPct(id,metric){ const r=researchTop(id,metric,state.sex); if(r==null) delete state.pct[id]; else state.pct[id]={p:r,src:'research'}; }
+async function syncServer(id,metric){
+  lastMetric[id]=metric;
+  if(!API_BASE||state.demo||metric==null) return;
+  try{
+    const ctrl=new AbortController(), to=setTimeout(()=>ctrl.abort(),6000);
+    const r=await fetch(API_BASE+'/v1/record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:id,value:metric,sex:state.sex}),signal:ctrl.signal,credentials:'omit'});
+    clearTimeout(to); if(!r.ok) return;
+    const real=blendTop(realTop(id,await r.json(),state.sex), researchTop(id,metric,state.sex));
+    if(real && lastMetric[id]===metric){ state.pct[id]={p:real.p,src:real.src,n:real.n}; persist(); const el=$('#rPct'); if(el && curEv && curEv.id===id) el.innerHTML=pctRowHtml(id); }
+  }catch(e){}
+}
 function track(event,params){ try{ (window.dataLayer=window.dataLayer||[]).push(Object.assign({event},params||{})); }catch(e){} }
 let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2200); }
 
@@ -425,23 +505,23 @@ const ICON={
 /* ---------- events config ---------- */
 const EVENTS=[
  {id:'reaction', name:'리액션 탭', en:'REACTION TAP', axis:'반응', tag:'신호가 뜨면 최대한 빨리 터치', needs:'none',
-  how:['폰을 한 손에 들고, 다른 손 검지를 화면 위에서 준비해요. (PC는 마우스)','가만히 기다리면 랜덤한 타이밍에 라임색 원이 화면 어딘가에 나타나요. 보이는 순간 최대한 빨리 터치!','원이 나오기 전에 누르면 부정 출발. 총 5번, 평균과 최고 기록으로 등급과 랭킹이 정해져요.'],
-  warn:'화면에서 눈을 떼지 마세요. 미리 누르면 그 라운드는 무효예요.'},
- {id:'sprint', name:'제자리 팔치기', en:'20s ARM SWING', axis:'스피드', tag:'폰을 쥐고 20초, 팔을 앞뒤로 몇 번 흔드나', needs:'motion',
-  how:['폰을 한 손에 꽉 쥐어요. 손목 스트랩이 있으면 걸어요. 어느 방향으로 쥐어도 돼요.','신호음이 울리면 20초 동안 팔꿈치를 접고 팔을 앞뒤로 최대한 빠르게 흔들어요. 서서 팔만 흔들어도 돼요.','폰이 앞뒤로 한 번 왕복할 때마다 1회로 세요.'],
-  warn:'폰이 손에서 빠지지 않게 꽉 쥐고, 주변에 사람이나 물건이 없는지 확인하세요.'},
- {id:'punch', name:'펀치 스피드', en:'PUNCH SPEED', axis:'펀치', tag:'10초 동안 가볍게 연속 펀치', needs:'motion',
-  how:['폰을 손목 안쪽(시계 위치)에 러닝 암밴드나 손목 밴드로 단단히 고정해요. 밴드가 없으면 주먹으로 꽉 쥐고 손목 스트랩을 걸어요.','3초 카운트 뒤 10초 동안, 폰을 찬 손으로 허공에 가볍게 연속 펀치를 날려요. 힘보다 빠르게!','최고 가속도 피크와 연속 펀치 횟수로 점수가 정해져요. 실제 펀치 속도(km/h)가 아니라 상대 지표예요.'],
-  warn:'사람·벽·물건을 치지 말고 허공에서 가볍게 하세요. 폰이 빠지지 않게 꽉 고정하세요.'},
- {id:'balance', name:'한발 밸런스', en:'ONE-LEG BALANCE · EYES CLOSED', axis:'밸런스', tag:'눈 감고 왼발·오른발 15초씩', needs:'motion',
-  how:['폰을 두 손으로 가슴 앞에 붙여 잡아요. 허리춤 주머니에 넣어도 돼요. 벽이나 의자 옆에서 하세요.','5초 준비 뒤 신호음이 울리면 눈을 감고 왼발로 15초, 발을 바꿔 오른발로 15초를 버텨요. 시간은 소리와 진동으로 알려줘요.','오래 버티는 것보다 얼마나 안 흔들렸는지가 점수예요. 휘청이면 눈을 뜨고 발을 내려도 돼요. 땅에 닿은 순간까지만 측정돼요.'],
-  warn:'눈을 감으면 넘어지기 쉬워요. 벽·의자 옆, 주변이 비어 있는 곳에서 하고 무리하지 마세요.'},
- {id:'jump', name:'버티컬 점프', en:'VERTICAL JUMP', axis:'파워', tag:'폰을 쥐고 3번 점프', needs:'motion',
-  how:['폰을 한 손에 꽉 쥐거나 바지 앞주머니에 넣어요. 손목 스트랩이 있으면 더 안전해요.','"점프!"가 뜨면 제자리에서 최대한 높이 3번 뛰어요.','착지할 때마다 기록이 찍혀요. 가장 높은 기록이 점수예요.'],
-  warn:'머리 위가 비어 있고 바닥이 평평한 곳에서 하세요.'},
- {id:'shout', optional:true, name:'기합 데시벨', en:'SHOUT METER', axis:'기합', tag:'4초 안에 최대로 지르는 소리', needs:'mic',
-  how:['폰을 입에서 한 뼘쯤 떨어뜨려 들어요.','카운트다운 뒤 "기합!!"이 뜨면 4초 동안 힘껏 소리 질러요.','가장 큰 순간의 소리가 점수예요. 마이크 권한이 필요하고 녹음은 저장되지 않아요.'],
-  warn:'소리가 커요. 주변에 양해를 구하고 하세요.'}
+  how:['폰을 손으로 들고 라임색 동그라미를 기다려요.','랜덤한 타이밍에 나오는 라임색 원을 최대한 빨리 터치해요.','5번을 측정해서 평균과 최고 기록으로 퍼센트가 정해져요.'],
+  warn:'원이 나오기 전에 누르면 부정 출발로 무효처리돼요.'},
+ {id:'sprint', name:'제자리 팔치기', en:'20s ARM SWING', axis:'스피드', tag:'20초 동안 최대한 많은 팔치기', needs:'motion',
+  how:['폰을 한손으로 꽉 잡아요. 손목 스트랩이 있으면 같이 걸어줘요.','신호음이 울리면 20초 동안 팔을 앞뒤로 최대한 많이 흔들어요.','폰이 앞뒤로 왕복할 때마다 1회로 측정돼요.'],
+  warn:'반드시 주변에 사람이나 물건이 없는지 확인하고 시작해주세요.'},
+ {id:'punch', name:'펀치 스피드', en:'PUNCH SPEED', axis:'펀치', tag:'10초 동안 빠르게 펀치', needs:'motion',
+  how:['휴대폰을 한손으로 꽉 잡아요. 손목 스트랩이나 밴드가 있으면 손목 안쪽으로 단단히 고정해줘요','휴대폰을 쥔 손으로 10초 동안 허공에 빠르고 가볍게 펀치를 날려줘요.','최고 가속도와 펀치 횟수로 랭킹이 측정돼요.'],
+  warn:'반드시 주변에 사람이나 물건이 없는지 확인하고 시작해주세요.'},
+ {id:'balance', name:'한발 밸런스', en:'ONE-LEG BALANCE · EYES CLOSED', axis:'밸런스', tag:'눈 감고 왼발·오른발 15초씩 버티기', needs:'motion',
+  how:['폰을 두 손으로 가슴 앞에 붙여 잡아요.','신호음이 울리면 눈을 감고 왼발로 15초, 오른발로 15초를 버텨요. 시간은 소리와 진동으로 알려줘요.','땅에 닿으면 측정이 중지돼요. 오래 버티는 것보다 얼마나 안흔들렸는지를 기준으로 랭킹이 측정돼요.'],
+  warn:'눈을 감으면 넘어지기 쉬우니 무리하지 않고 측정해주세요.'},
+ {id:'jump', name:'버티컬 점프', en:'VERTICAL JUMP', axis:'파워', tag:'가장 높게 3번 점프', needs:'motion',
+  how:['폰을 한 손에 꽉쥐고 측정을 준비해요.','점프! 가 뜨면 제자리에서 최대한 높이 3번 뛰어요.','착지할 때마다 기록이 측정돼요. 가장 높이 뛴 기록으로 랭킹이 측정돼요.'],
+  warn:'천장이 높고 바닥이 평평한 곳에서 측정해주세요.'},
+ {id:'shout', optional:true, name:'기합 데시벨', en:'SHOUT METER', axis:'기합', tag:'4초 동안 가장 크게 소리 지르기', needs:'mic',
+  how:['폰을 입에서 한 뼘 정도 떨어뜨려요.','카운트다운 뒤 "기합!" 이 뜨면 4초 동안 크게 소리를 질러요.','가장 소리가 큰 순간으로 랭킹이 측정돼요. 마이크 권한이 필요하고 목소리는 저장되지 않아요.'],
+  warn:'큰 소리가 나므로 주변에 피해가 가지 않는 곳에서 측정해주세요.'}
 ];
 EVENTS.forEach(e=>e.icon=ICON[e.id]);
 
@@ -477,24 +557,25 @@ function renderHome(){
   EVENTS.forEach(ev=>{
     const done=state.scores[ev.id]!=null;
     const b=document.createElement('button'); b.className='evcard'+(done?' done':'');
-    b.innerHTML=`<span class="evico">${ev.icon}</span><span class="evtxt"><b>${ev.name}</b><small>${ev.tag}</small></span><span class="evstat">${done?`<em>${state.scores[ev.id]}</em><small>${state.labels[ev.id]||''}</small>`:`<small>${ev.optional?'선택 · ':''}${ev.axis}</small>`}</span>`;
+    b.innerHTML=`<span class="evico">${ev.icon}</span><span class="evtxt"><b>${ev.name}</b><small>${ev.tag}</small></span><span class="evstat">${done?`<em>${state.scores[ev.id]}</em><small>${state.labels[ev.id]||''}</small>`:`<small>${ev.optional?'선택':''}</small>`}</span>`;
     b.onclick=()=>openEvent(ev);
     list.appendChild(b);
   });
   const n=Object.keys(state.scores).length, rd=reqDone();
-  $('#progFill').style.width=(rd/REQ.length*100)+'%';
-  $('#progText').textContent=rd+' / '+REQ.length;
+  $('#progFill').style.width=(n/EVENTS.length*100)+'%';
+  $('#progText').textContent=n+' / '+EVENTS.length;
   $('#startBtn').textContent = n===0?'측정 시작' : rd<REQ.length?'이어서 측정하기' : '내 선수 유형 카드 보기';
   $('#demoBadge').hidden=!state.demo;
   $('#demoBtn').textContent = state.demo ? '데모 모드 끄기' : '센서 없이 둘러보기 (데모)';
   $('#resetHome').hidden = n===0;
+  document.querySelectorAll('#sexSeg button').forEach(b=>b.classList.toggle('on',b.dataset.s===state.sex));
 }
 
 function openEvent(ev){
   cancelRun(); curEv=ev; show('event');
   $('#evTitle').textContent=ev.name;
-  $('#evStep').textContent=ev.optional?'선택':(REQ.indexOf(ev)+1)+' / '+REQ.length;
-  $('#stage').innerHTML=`<div class="intro"><div class="bigico">${ev.icon}</div><div class="eyebrow">${ev.en} · ${ev.axis}</div><h2>${ev.name}</h2><p class="lead">${ev.tag}</p><ol class="how">${ev.how.map(h=>`<li>${h}</li>`).join('')}</ol><p class="warn">주의 · ${ev.warn}</p><button class="btn" id="goBtn">준비됐어요</button></div>`;
+  $('#evStep').textContent=(EVENTS.indexOf(ev)+1)+' / '+EVENTS.length;
+  $('#stage').innerHTML=`<div class="intro"><div class="bigico">${ev.icon}</div><h2>${ev.name}</h2><p class="lead">${ev.tag}</p><ol class="how">${ev.how.map(h=>`<li>${h}</li>`).join('')}</ol><p class="warn">주의 · ${ev.warn}</p><button class="btn" id="goBtn">준비됐어요</button></div>`;
   $('#goBtn').onclick=()=>begin(ev);
   track('motionlab_event_view',{event_id:ev.id});
 }
@@ -531,7 +612,7 @@ async function launch(ev){
     else res=await RUNNERS[ev.id](ctx);
     ctx.check();
     ctx.end();
-    state.scores[ev.id]=res.score; state.labels[ev.id]=res.label; persist();
+    state.scores[ev.id]=res.score; state.labels[ev.id]=res.label; applyResearchPct(ev.id,res.metric); persist(); syncServer(ev.id,res.metric);
     track('motionlab_event_complete',{event_id:ev.id,score:res.score,demo:state.demo});
     showResult(ev,res);
   }catch(e){
@@ -549,7 +630,7 @@ function tierText(s){ return s>=90?'괴물 등장.':s>=75?'상위권이에요.':
 function buildJump(found){
   const best=found.length?Math.max(...found.map(j=>j.height)):0;
   const bestFlight=found.length?Math.max(...found.map(j=>j.flight)):0;
-  return { score:jumpScore(best), main:best?best.toFixed(1):'—', unit:'cm', label:best?best.toFixed(1)+'cm':'—',
+  return { metric:best?Math.round(best*10)/10:null, score:jumpScore(best), main:best?best.toFixed(1):'—', unit:'cm', label:best?best.toFixed(1)+'cm':'—',
     note: best?'':'점프가 감지되지 않았어요. 폰을 더 꽉 쥐거나 주머니에 넣고 다시 시도해 보세요.',
     sub: found.map((j,i)=>[(i+1)+'번째 점프', j.height.toFixed(1)+' cm']).concat(best?[['최대 체공시간', bestFlight.toFixed(2)+' s']]:[]) };
 }
@@ -572,7 +653,7 @@ function buildReaction(rounds){
     extra=rankHtml(S.rank,avg,r,id);
     if(S.valid<T.rounds) note='유효 기록 '+S.valid+'/'+T.rounds+'회.';
   }
-  return { score:S.score, main:avg!=null?String(avg):'—', unit:'ms 평균', label:avg!=null?'평균 '+avg+'ms':'—', note, extra,
+  return { metric:(S.valid>=3&&avg!=null)?avg:null, score:S.score, main:avg!=null?String(avg):'—', unit:'ms 평균', label:avg!=null?'평균 '+avg+'ms':'—', note, extra,
     sub:[['평균 반응속도',avg!=null?avg+' ms':'—'],['최고 기록',best!=null?best+' ms':'—']].concat(rounds.map((r,i)=>['ROUND '+(i+1), r.ms!=null?Math.round(r.ms)+' ms':(r.falseStart?'부정 출발':'반응 없음')])) };
 }
 function buildBalance(legs){
@@ -580,12 +661,13 @@ function buildBalance(legs){
   const score=Math.round((legs[0].score+legs[1].score)/2);
   const diff=Math.abs(legs[0].score-legs[1].score), better=legs[0].score>=legs[1].score?'왼발':'오른발';
   const notes=[]; legs.forEach((s,i)=>{ if(s.touched) notes.push(names[i]+'은 '+s.hold+'초에 발이 땅에 닿았어요.'); });
-  return { score, main:String(score), unit:'점', label:'좌 '+legs[0].score+' · 우 '+legs[1].score, note:notes.join(' '),
+  const holdAvg=Math.round((Math.min(legs[0].hold,T.legSec)+Math.min(legs[1].hold,T.legSec))/2*10)/10;
+  return { metric:holdAvg, score, main:String(score), unit:'점', label:'좌 '+legs[0].score+' · 우 '+legs[1].score, note:notes.join(' '),
     sub: legs.map((s,i)=>[names[i], s.score+'점 · 안정 '+s.steady+'% · '+Math.min(s.hold,T.legSec)+'/'+T.legSec+'s']).concat([['좌우 차이', diff<=5?'거의 같아요':better+'이 '+diff+'점 더 안정적']]) };
 }
 function buildSprint(cycles){
   const T=TUNE.sprint, hz=cycles/T.seconds;
-  return { score:sprintScore(cycles), main:String(cycles), unit:'회 (앞뒤 왕복)', label:cycles+'회',
+  return { metric:cycles, score:sprintScore(cycles), main:String(cycles), unit:'회 (앞뒤 왕복)', label:cycles+'회',
     note: cycles<8?'폰이 거의 흔들리지 않았어요. 폰을 꽉 쥐고 팔을 더 크게 앞뒤로 흔들어 보세요.':'',
     sub:[['초당 왕복', hz.toFixed(1)+' 회']] };
 }
@@ -595,30 +677,35 @@ function buildPunch(punches){
   const disclaimer='<p class="fine" style="margin:12px 2px 0">※ 실제 펀치 속도(km/h)가 아니라, 폰이 느낀 가속도를 바탕으로 한 상대 지표예요. 폰 위치와 기기에 따라 값이 달라요.</p>';
   if(!S.count) return { score:0, main:'—', unit:'G (상대)', label:'—', extra:disclaimer,
     note:'펀치가 감지되지 않았어요. 폰을 손목에 더 단단히 고정하고, 조금 더 빠르게 휘둘러 보세요.', sub:[['연속 펀치 횟수','0 회']] };
-  return { score:S.score, main:g1(S.peakG), unit:'G (상대)', label:g1(S.peakG)+'G · '+S.count+'회', extra:disclaimer, note:'',
+  return { metric:S.score, score:S.score, main:g1(S.peakG), unit:'G (상대)', label:g1(S.peakG)+'G · '+S.count+'회', extra:disclaimer, note:'',
     sub:[['가장 빠른 펀치', (S.peakIdx+1)+'번째 · '+g1(S.peakG)+' G'],['평균 피크', g1(S.avgG)+' G'],['연속 펀치 횟수', S.count+' 회'],['초당 펀치', S.perSec.toFixed(1)+' 회'],['피크 점수 · 횟수 점수', S.peakScore+' · '+S.countScore]] };
 }
 function shoutLevel(d){ const r=relDb(d); return r>=92?'체육관이 울려요':r>=84?'역도장 기합급':r>=72?'응원 소리':r>=60?'대화보다 조금 큰 정도':'속삭임에 가까워요'; }
 function buildShout(d){
   const r=relDb(d);
-  return { score:shoutScore(d), main:String(Math.max(0,r)), unit:'dB (상대)', label:Math.max(0,r)+'dB',
+  return { metric:Math.max(0,r), score:shoutScore(d), main:String(Math.max(0,r)), unit:'dB (상대)', label:Math.max(0,r)+'dB',
     note: d<-70?'소리가 거의 잡히지 않았어요. 마이크 가까이에서 다시 질러보세요.':'',
     sub:[['등급', shoutLevel(d)],['기기 마이크 기준값', 'dBFS '+d.toFixed(1)]] };
 }
 
 /* ---------- shared UI helpers ---------- */
-async function countdown(ctx,n,label){
+async function goWord(ctx,word){   // 카운트다운이 끝난 뒤 "시작!" 등을 잠깐 보여줘요
+  ctx.view(`<div class="cd"><div class="cdn go">${word}</div></div>`);
+  buzz(80); await ctx.wait(800);
+}
+async function countdown(ctx,n,label,word){
   for(let i=n;i>0;i--){
     ctx.view(`<div class="cd"><div class="cdl">${label}</div><div class="cdn">${i}</div></div>`);
     beep(i===1?740:520,0.08); await ctx.wait(1000);
   }
+  if(word) await goWord(ctx,word);
 }
 
 /* ---------- runners ---------- */
 const RUNNERS={};
 
 RUNNERS.jump=async function(ctx){
-  await countdown(ctx,3,'폰을 꽉 쥐고 가만히');
+  await countdown(ctx,5,'폰을 꽉 쥐고 가만히','점프!');
   keepAwake(true); ctx.cleanup(()=>keepAwake(false));
   ctx.view(`<div class="measure"><div class="status">점프!</div><div class="dots" id="jmDots"><i></i><i></i><i></i></div><div class="jlist" id="jmList"></div><div class="timer" id="jmTime">15</div><button class="btn ghost" id="jmDone">측정 종료</button></div>`);
   beep(988,0.2); buzz(80);
@@ -669,6 +756,7 @@ function reactionRound(ctx){
 }
 RUNNERS.reaction=async function(ctx){
   const T=TUNE.react, rounds=[];
+  await countdown(ctx,5,'폰을 들고<br>화면을 바라봐요','시작!');
   for(let r=1;r<=T.rounds;r++){
     ctx.view(`<div class="react" id="rx"><div class="rxr">ROUND ${r} / ${T.rounds}</div><div class="rxm" id="rxm">기다려요…</div><div class="rxs">원이 나타나면 최대한 빨리 터치!<br>미리 누르면 부정 출발</div><button class="tgt" id="tgt" hidden>TAP</button></div>`);
     const o=await reactionRound(ctx);
@@ -694,6 +782,7 @@ RUNNERS.balance=async function(ctx){
       if(i<=3) beep(520,0.08,V);
       await ctx.wait(1000);
     }
+    if(li===0) await goWord(ctx,'시작!');
     beep(1175,0.6,0.45); buzz(300); // 눈 감기 신호
     ctx.view(`<div class="measure"><div class="eyebrow">${li+1} / 2</div><div class="status dim">눈 감고<br>${names[li]}로 버텨요</div></div>`);
     const buckets=[]; let cur=[];
@@ -718,7 +807,7 @@ RUNNERS.balance=async function(ctx){
 
 RUNNERS.sprint=async function(ctx){
   const T=TUNE.sprint;
-  await countdown(ctx,3,'폰을 한 손에 꽉 쥐고<br>팔 스윙 준비');
+  await countdown(ctx,5,'폰을 한 손에 꽉 쥐고<br>팔 스윙 준비','시작!');
   keepAwake(true); ctx.cleanup(()=>keepAwake(false));
   ctx.view(`<div class="measure"><div class="status">흔들어요!</div><div class="timer big"><span id="spT">${T.seconds}</span><small>초</small></div><div class="bignum"><span id="spN">0</span><small>회</small></div><div class="fine" style="margin:0">폰이 앞뒤로 왕복한 횟수</div></div>`);
   beep(1175,0.4); buzz(200);
@@ -742,7 +831,7 @@ RUNNERS.sprint=async function(ctx){
 
 RUNNERS.punch=async function(ctx){
   const T=TUNE.punch;
-  await countdown(ctx,3,'폰을 손목에 단단히 고정하고<br>펀치 자세');
+  await countdown(ctx,5,'폰을 손목에 단단히 고정하고<br>펀치 자세','시작!');
   keepAwake(true); ctx.cleanup(()=>keepAwake(false));
   ctx.view(`<div class="measure"><div class="status">펀치!</div><div class="timer big" id="puT">${T.seconds}</div><div class="bignum"><span id="puN">0</span><small>회</small></div><div class="fine" id="puP" style="margin:0">최고 0.0 G</div></div>`);
   beep(1175,0.4); buzz(200);
@@ -785,7 +874,7 @@ RUNNERS.shout=async function(ctx){
     if(an.getFloatTimeDomainData){ an.getFloatTimeDomainData(f32); for(let i=0;i<f32.length;i++) q+=f32[i]*f32[i]; return Math.sqrt(q/f32.length); }
     an.getByteTimeDomainData(u8); for(let i=0;i<u8.length;i++){ const v=(u8[i]-128)/128; q+=v*v; } return Math.sqrt(q/u8.length);
   };
-  await countdown(ctx,3,'폰을 입에서 한 뼘 거리로');
+  await countdown(ctx,5,'폰을 입에서 한 뼘 거리로','기합!');
   ctx.view(`<div class="measure"><div class="status">기합!!!</div><div class="bignum"><span id="shN">0</span><small>dB</small></div><div class="meter"><i id="shBar"></i><u id="shPk"></u></div><div class="timer" id="shT">4</div></div>`);
   beep(1175,0.25); buzz(150);
   let peak=-120; const ring=[]; const t0=performance.now();
@@ -833,7 +922,7 @@ function nextEvent(ev){
 }
 function showResult(ev,res){
   const next=nextEvent(ev);
-  $('#stage').innerHTML=`<div class="result"><div class="eyebrow">${ev.en}</div><div class="rmain">${res.main}<small>${res.unit}</small></div><div class="rscore">SCORE <b>${res.score}</b> / 100</div><div class="rbar"><i id="rbarFill"></i></div><p class="rcomment">${tierText(res.score)}${res.note?' '+res.note:''}</p><div class="rsub">${res.sub.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>${res.extra||''}<div class="btnrow"><button class="btn ghost" id="rRetry">다시 측정</button><button class="btn" id="rNext">${next?'다음 종목':'결과 카드 보기'}</button></div>${(!next && OPT && ev!==OPT && state.scores[OPT.id]==null)?`<button class="link" id="rOpt">${OPT.name}도 측정하기 (선택)</button>`:''}</div>`;
+  $('#stage').innerHTML=`<div class="result"><div class="eyebrow">${ev.en}</div><div class="rmain">${res.main}<small>${res.unit}</small></div><div class="rscore">SCORE <b>${res.score}</b> / 100</div><div class="rbar"><i id="rbarFill"></i></div><div class="rpct" id="rPct">${pctRowHtml(ev.id)}</div><p class="rcomment">${tierText(res.score)}${res.note?' '+res.note:''}</p><div class="rsub">${res.sub.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>${res.extra||''}<div class="btnrow"><button class="btn ghost" id="rRetry">다시 측정</button><button class="btn" id="rNext">${next?'다음 종목':'결과 카드 보기'}</button></div>${(!next && OPT && ev!==OPT && state.scores[OPT.id]==null)?`<button class="link" id="rOpt">${OPT.name}도 측정하기 (선택)</button>`:''}</div>`;
   requestAnimationFrame(()=>{ const f=$('#rbarFill'); if(f) f.style.width=res.score+'%'; });
   $('#rRetry').onclick=()=>openEvent(ev);
   $('#rNext').onclick=()=>{ if(next) openEvent(next); else openFinal(); };
@@ -864,7 +953,7 @@ function drawCard(){
   c.fillStyle=ACC; c.font=`700 26px ${FONT}`; c.fillText('MOTION LAB',72+kw+18,110);
   c.textAlign='right'; c.fillStyle='#8a8a8a'; c.font=`500 26px ${FONT}`; c.fillText(dateStr,W-72,110);
   // radar
-  const cx=540, cy=575, R=250, N=AX.length;
+  const cx=540, cy=545, R=235, N=AX.length;
   const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/N; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
   for(let k=1;k<=5;k++){ c.beginPath(); for(let i=0;i<N;i++){ const [x,y]=pt(i,R*k/5); i?c.lineTo(x,y):c.moveTo(x,y); } c.closePath(); c.strokeStyle=k===5?'#3a3a3a':'#262626'; c.lineWidth=2; c.stroke(); }
   c.strokeStyle='#262626'; for(let i=0;i<N;i++){ const [x,y]=pt(i,R); c.beginPath(); c.moveTo(cx,cy); c.lineTo(x,y); c.stroke(); }
@@ -872,10 +961,11 @@ function drawCard(){
   c.fillStyle='rgba(212,255,58,0.25)'; c.fill(); c.strokeStyle=ACC; c.lineWidth=5; c.lineJoin='round'; c.stroke();
   sc.forEach((v,i)=>{ const [x,y]=pt(i,R*Math.max(v,4)/100); c.beginPath(); c.arc(x,y,9,0,Math.PI*2); c.fillStyle=ACC; c.fill(); });
   c.textAlign='center';
-  AX.forEach((a,i)=>{ const [x,y]=pt(i,R+78); c.fillStyle='#fff'; c.font=`700 32px ${FONT}`; c.fillText(a.ko,x,y-4); c.fillStyle=ACC; c.font=`800 40px ${FONT}`; c.fillText(String(sc[i]),x,y+40); });
+  AX.forEach((a,i)=>{ const [x,y]=pt(i,R+78); c.fillStyle='#fff'; c.font=`700 32px ${FONT}`; c.fillText(a.ko,x,y-4); c.fillStyle=ACC; c.font=`800 40px ${FONT}`; c.fillText(String(sc[i]),x,y+40);
+    const pc=state.pct[a.id]; if(pc){ c.fillStyle='#bdbdbd'; c.font=`600 26px ${FONT}`; c.fillText('상위 '+pc.p+'%',x,y+74); } });
   // tier pill
   c.textAlign='left'; c.font=`700 28px ${FONT}`;
-  const pill=`${cls.tier} · 종합 ${cls.avg}`, pw=c.measureText(pill).width+48;
+  const op=overallTop(AX.map(a=>state.pct[a.id]?state.pct[a.id].p:null)), pill=`${cls.tier} · 종합 ${cls.avg}`+(op!=null?` · 상위 ${op}%`:''), pw=c.measureText(pill).width+48;
   c.beginPath(); if(c.roundRect) c.roundRect(72,975,pw,52,26); else c.rect(72,975,pw,52);
   c.strokeStyle=ACC; c.lineWidth=2; c.stroke(); c.fillStyle=ACC; c.fillText(pill,96,1011);
   // type
@@ -906,10 +996,11 @@ $('#startBtn').onclick=()=>{
   openEvent(REQ.find(e=>state.scores[e.id]==null)||REQ[0]);
 };
 $('#demoBtn').onclick=()=>{ state.demo=!state.demo; renderHome(); toast(state.demo?'데모 모드를 켰어요':'데모 모드를 껐어요'); };
-$('#resetHome').onclick=()=>{ state.scores={}; state.labels={}; persist(); renderHome(); toast('기록을 초기화했어요'); };
+$('#sexSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; state.sex=b.dataset.s; persist(); renderHome(); });
+$('#resetHome').onclick=()=>{ state.scores={}; state.labels={}; state.pct={}; persist(); renderHome(); toast('기록을 초기화했어요'); };
 $('#evBack').onclick=()=>{ cancelRun(); renderHome(); show('home'); };
 $('#finBack').onclick=()=>{ renderHome(); show('home'); };
-$('#resetBtn').onclick=()=>{ state.scores={}; state.labels={}; persist(); renderHome(); show('home'); };
+$('#resetBtn').onclick=()=>{ state.scores={}; state.labels={}; state.pct={}; persist(); renderHome(); show('home'); };
 let nickRaf=0;
 $('#nick').addEventListener('input',e=>{ state.name=e.target.value.trim(); persist(); cancelAnimationFrame(nickRaf); nickRaf=requestAnimationFrame(drawCard); });
 $('#saveBtn').onclick=async()=>{
@@ -930,13 +1021,20 @@ $('#shareBtn').onclick=async()=>{
   }catch(e){}
 };
 $('#ctaBtn').addEventListener('click',()=>track('motionlab_cta_click',{where:'final'}));
-$('#topLink').addEventListener('click',()=>track('motionlab_cta_click',{where:'header'}));
 
 // 예전 버전에서 저장된 종목 기록 정리
-{ const valid=new Set(AXES.map(a=>a.id)); ['scores','labels'].forEach(k=>{ for(const id of Object.keys(state[k])) if(!valid.has(id)) delete state[k][id]; }); persist(); }
+{ const valid=new Set(AXES.map(a=>a.id)); ['scores','labels','pct'].forEach(k=>{ for(const id of Object.keys(state[k])) if(!valid.has(id)) delete state[k][id]; }); persist(); }
 renderHome(); show('home');
 // 테스트 훅 (로컬 점검용)
 window.__lab={ state, openFinal, renderHome, drawCard };
+})();
+
+(function(){ const a=document.getElementById('logoLink'); if(!a) return;
+  a.addEventListener('click',function(e){
+    const w=Math.min(1100,screen.availWidth||1100), h=Math.min(800,screen.availHeight||800);
+    const p=window.open(a.href,'kye3_home','popup=yes,noopener,width='+w+',height='+h+',left='+Math.max(0,((screen.availWidth||w)-w)/2)+',top='+Math.max(0,((screen.availHeight||h)-h)/2));
+    if(p) e.preventDefault();   // 팝업이 막히면 기본 동작(새 탭)으로 열려요
+  });
 })();
 </script>
 </body>
