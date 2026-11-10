@@ -170,12 +170,14 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
       <h1>내 운동 능력은<br>상위 몇 프로?</h1>
       <p>3분 동안 측정하고 친구들과 비교해보세요.</p>
     </div>
+    <div class="homebtns" style="margin:0 0 24px">
+      <button class="btn" id="startBtn">측정 시작</button>
+      <button class="btn white" id="viewCard" style="margin-top:10px" hidden>내 운동 능력 확인</button>
+      <button class="btn ghost" id="resetHome" style="margin-top:10px" hidden>기록 초기화</button>
+    </div>
     <div id="demoBadge" class="demo-badge" hidden>데모 모드 — 센서 대신 임의 값이 들어가요</div>
     <div class="progress"><div class="bar"><i id="progFill"></i></div><span id="progText">0 / 6</span></div>
     <div id="evList"></div>
-    <button class="btn" id="startBtn">측정 시작</button>
-    <button class="btn white" id="viewCard" style="margin-top:10px" hidden>내 운동 능력 확인</button>
-    <button class="btn ghost" id="resetHome" style="margin-top:10px" hidden>기록 초기화</button>
     <p class="fine">기기마다 오차가 있고 의학적·공식 기록이 아니에요.</p>
     <p class="fine" style="margin-top:0">Engineered by © KYE3 · kye3.com</p>
     <button class="link" id="demoBtn" style="font-size:12px;margin-top:22px">센서 없이 둘러보기 (데모)</button>
@@ -210,7 +212,7 @@ const G = 9.80665;
 // 실제 기기 테스트 후 여기 숫자만 조정하면 돼요.
 const TUNE = {
   jump:   { lowTh:4.5, highTh:7.5, takeoffTh:10.5, takeoffWindow:0.6, minFlight:0.16, maxFlight:1.0, mergeGap:90, minCm:10, maxCm:60 },
-  react:  { rounds:8, minValid:100, maxWait:2500, minDelay:1500, maxDelay:4500, bestMs:180, worstMs:520 },
+  react:  { rounds:6, minValid:100, maxWait:2500, minDelay:1500, maxDelay:4500, bestMs:180, worstMs:720 },
   balance:{ accBest:0.05, accWorst:1.4, gyroBest:1.0, gyroWorst:14, touchPeakGyro:60, touchPeakAcc:2.5, legSec:15, prepSec:5, switchSec:7 },
   sprint: { seconds:15, fcHz:2.8, minAmp:6, k:0.35, minPeriod:250, minCount:18, maxCount:64 },
   punch:  { floor:12, k:0.6, minGap:170, seconds:10, minPeak:12, maxPeak:60, minCount:8, maxCount:35, wPeak:0.6 },
