@@ -469,7 +469,7 @@ const state={ scores:{}, labels:{}, pct:{}, results:{}, sex:'', name:'', accent:
 try{ const j=JSON.parse(localStorage.getItem(STORE_KEY)||'null'); if(j){ state.scores=j.scores||{}; state.labels=j.labels||{}; state.name=j.name||''; state.accent=(j.accent&&ACCENTS[j.accent])?j.accent:'lime'; state.pct=j.pct||{}; state.results=(j.results&&typeof j.results==='object')?j.results:{}; state.sex=(j.sex==='m'||j.sex==='f')?j.sex:''; } }catch(e){}
 function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({scores:state.scores,labels:state.labels,pct:state.pct,results:state.results,sex:state.sex,name:state.name,accent:state.accent})); }catch(e){} }
 /* 실제 사용자 기록 서버(Cloudflare Worker). 배포 후 주소를 넣으면 켜져요. 비어 있으면 연구 자료만 써요. */
-const API_BASE='';   // 예: 'https://motionlab-api.내계정.workers.dev'
+const API_BASE='https://motionlab-api.jroot0806.workers.dev';   // 예: 'https://motionlab-api.내계정.workers.dev'
 const lastMetric={};
 function pctRowHtml(id){ const p=state.pct[id]; if(!p) return ''; return '상위 <b>'+p.p+'%</b>'; }
 function applyResearchPct(id,metric){ const r=researchTop(id,metric,state.sex); if(r==null) delete state.pct[id]; else state.pct[id]={p:r,src:'research'}; }
@@ -998,10 +998,9 @@ function drawCard(){
   { const bx=1.5,by=1.5,bw=W-3,bh=H-3,r=52; c.beginPath(); c.moveTo(bx+r,by); c.arcTo(bx+bw,by,bx+bw,by+bh,r); c.arcTo(bx+bw,by+bh,bx,by+bh,r); c.arcTo(bx,by+bh,bx,by,r); c.arcTo(bx,by,bx+bw,by,r); c.closePath(); c.strokeStyle=hx(LT?0.35:0.28); c.lineWidth=3; c.stroke(); }
   c.textBaseline='alphabetic';
   // header
-  c.textAlign='left'; c.fillStyle=TH.fg; c.font=`800 46px ${FONT}`; c.fillText('KYE3',72,112);
-  const kw=c.measureText('KYE3').width;
-  c.fillStyle=ACC; c.font=`700 26px ${FONT}`; c.fillText('MOTION LAB',72+kw+18,110);
-  c.textAlign='right'; c.fillStyle=TH.date; c.font=`500 26px ${FONT}`; c.fillText(dateStr,W-72,110);
+  c.textAlign='left'; c.fillStyle=ACC; c.font=`700 30px ${FONT}`; c.fillText('MOTION LAB',72+Math.round(c.measureText('MOTION LAB').actualBoundingBoxLeft||0),111);   // 왼쪽 상단에는 MOTION LAB만 (왼쪽 끝은 아래 알약·글자와 같은 선)
+  c.textAlign='right'; c.fillStyle=TH.date; c.font=`500 30px ${FONT}`; c.fillText(dateStr,W-72,111);
+  const inkL=(t)=>{ const m=c.measureText(t); return (m.actualBoundingBoxLeft!=null)?Math.round(m.actualBoundingBoxLeft):0; };   // 글자 모양마다 다른 왼쪽 여백을 없애서, 눈에 보이는 글자 왼쪽 끝을 알약 테두리(72px)와 맞춰요
   const hasN=!!state.name;
   c.font=`500 34px ${FONT}`; const dl=wrapLines(c,T.desc,W-144).slice(0,2);
   // 로고는 위쪽 여백(카드 위 ~ 헤더 글자 = 78px)과 같은 간격으로 카드 맨 아래에 놓아요 → 글이 로고와 겹치지 않도록 간격을 맞춰요
@@ -1010,7 +1009,8 @@ function drawCard(){
   if(py+fixed+n*G>LIM){ G=Math.floor((LIM-py-fixed)/n); if(G<22){ G=22; py=Math.max(890,LIM-fixed-n*G); } }   // 네 영역(알약·닉네임·유형 이름·설명)의 간격은 모두 G로 같아요
   // 오각형(글자 포함)을 위·아래 여백이 같도록 배치: 헤더 글자 아래(111) ~ 오각형 위 = 오각형 아래 ~ 알약 위
   // 오각형 위쪽 끝 = cy-345, 아래쪽 끝 = cy+330
-  const cy=Math.round((py+126)/2);
+  py-=16;   // 알약·닉네임·유형 이름·설명 덩어리를 위로 올려 하단 로고와 간격을 벌려요
+  const cy=Math.round((py+126)/2);   // 오각형은 헤더 글자 아래 여백 = 알약 위 여백이 되도록 가운데에 놓아요
   const cx=540, R=235, N=AX.length;
   const pt=(i,r)=>{ const a=-Math.PI/2+i*2*Math.PI/N; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
   for(let k=1;k<=5;k++){ c.beginPath(); for(let i=0;i<N;i++){ const [x,y]=pt(i,R*k/5); i?c.lineTo(x,y):c.moveTo(x,y); } c.closePath(); c.strokeStyle=k===5?TH.g1:TH.g2; c.lineWidth=2; c.stroke(); }
@@ -1028,14 +1028,14 @@ function drawCard(){
   let yy=py+68;   // 닉네임이 있으면 알약을 조금 올리고, 유형 이름 위에 닉네임을 넣어요
   c.beginPath(); if(c.roundRect) c.roundRect(72,py,pw,68,34); else c.rect(72,py,pw,68);
   c.strokeStyle=ACC; c.lineWidth=2; c.stroke(); c.fillStyle=ACC; c.fillText(pill,102,py+46);
-  if(hasN){ yy+=G+Math.round(44*.86); c.fillStyle=TH.fg; c.font=`700 44px ${FONT}`; c.fillText(state.name,72,yy); yy+=Math.round(44*.1); }
+  if(hasN){ yy+=G+Math.round(44*.86); c.fillStyle=TH.fg; c.font=`700 44px ${FONT}`; c.fillText(state.name,72+inkL(state.name),yy); yy+=Math.round(44*.1); }
   // type
   // 유형 이름이 길면 카드 폭(936px)에 맞게 글자 크기를 줄여요
   c.font=`800 84px ${FONT}`; const tfs=Math.min(84,Math.floor(84*(W-144)/Math.max(1,c.measureText(T.ko).width)));
-  c.fillStyle=TH.fg; c.font=`800 ${tfs}px ${FONT}`; yy+=G+Math.round(tfs*.86); c.fillText(T.ko,72,yy); yy+=Math.round(tfs*.1);
+  c.fillStyle=TH.fg; c.font=`800 ${tfs}px ${FONT}`; yy+=G+Math.round(tfs*.86); c.fillText(T.ko,72+inkL(T.ko)-2,yy); yy+=Math.round(tfs*.1);
   const dy=yy+G+Math.round(34*.86);
   c.fillStyle=TH.desc; c.font=`500 34px ${FONT}`;
-  dl.forEach((l,i)=>c.fillText(l,72,dy+i*46));
+  dl.forEach((l,i)=>c.fillText(l,72+inkL(l),dy+i*46));
   // 하단 중앙 로고(첫 화면 헤더의 로고 이미지)
   { const lg=document.querySelector('.brand .logo');
     if(lg && lg.complete && lg.naturalWidth){ const lh=LH, lw=Math.round(lh*lg.naturalWidth/lg.naturalHeight); let src=lg;
