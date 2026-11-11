@@ -213,7 +213,7 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 const G = 9.80665;
 // 실제 기기 테스트 후 여기 숫자만 조정하면 돼요.
 const TUNE = {
-  jump:   { lowTh:4.5, highTh:7.5, takeoffTh:10.5, takeoffWindow:0.6, minFlight:0.16, maxFlight:1.0, mergeGap:90, minCm:10, maxCm:60 },
+  jump:   { lowTh:4.5, highTh:7.5, takeoffTh:10.5, takeoffWindow:0.6, minFlight:0.16, maxFlight:1.0, mergeGap:90, refractory:600, minCm:10, maxCm:60 },
   react:  { rounds:6, minValid:100, maxWait:2500, minDelay:1500, maxDelay:4500, bestMs:180, worstMs:720 },
   balance:{ accBest:0.05, accWorst:1.4, gyroBest:1.0, gyroWorst:14, touchPeakGyro:60, touchPeakAcc:2.5, legSec:15, prepSec:5, switchSec:7 },
   sprint: { seconds:15, fcHz:2.8, minAmp:6, k:0.35, minPeriod:250, minCount:18, maxCount:64 },
@@ -227,13 +227,14 @@ function toScore(x01){ return Math.round(clamp(x01,0,1)*100); }
 /* 점프: 가속도 크기(중력 포함)가 0 근처로 떨어지는 '무중력 구간'의 길이 = 체공시간. h = g·t²/8 */
 function createJumpDetector(opts){
   const o = Object.assign({}, TUNE.jump, opts);
-  let state='ground', tLow=0, lastSpike=-1e9, pend=null; const jumps=[];
+  let state='ground', tLow=0, lastSpike=-1e9, lastLand=-1e9, skip=false, pend=null; const jumps=[];
   // 착지로 보이는 순간 바로 확정하지 않고 mergeGap(ms) 동안 기다려요.
   // 손에 쥔 폰은 체공 중에 값이 잠깐 튀어 구간이 끊길 수 있는데, 곧바로 다시 '무중력'이 이어지면 같은 점프로 합쳐요.
   const settle=()=>{
-    const p=pend; pend=null;
+    const p=pend; pend=null; lastLand=p.t;
     const flight=(p.t-p.tLow)/1000;
-    if(flight>=o.minFlight && flight<=o.maxFlight && (p.tLow-p.spike)/1000<=o.takeoffWindow){
+    // 착지 직후(refractory ms 이내)에 시작된 무중력 구간은 폰이 출렁인 것이지 새 점프가 아니에요. 사람은 착지 후 웅크렸다 다시 뛰려면 그보다 오래 걸려요.
+    if(!p.skip && flight>=o.minFlight && flight<=o.maxFlight && (p.tLow-p.spike)/1000<=o.takeoffWindow){
       const j={ t:p.t, flight, height: G*flight*flight/8*100 };
       jumps.push(j); return j;
     }
@@ -247,10 +248,10 @@ function createJumpDetector(opts){
         if(m>o.takeoffTh && !pend) lastSpike=t;
         if(m<o.lowTh){
           state='air';
-          if(pend && t-pend.t<=o.mergeGap){ tLow=pend.tLow; lastSpike=pend.spike; pend=null; } else { if(pend) out=settle()||out; tLow=t; }
+          if(pend && t-pend.t<=o.mergeGap){ tLow=pend.tLow; lastSpike=pend.spike; skip=pend.skip; pend=null; } else { if(pend) out=settle()||out; tLow=t; skip=(t-lastLand<o.refractory); }
         }
       } else if(m>o.highTh){
-        state='ground'; pend={ tLow, t, spike:lastSpike };
+        state='ground'; pend={ tLow, t, spike:lastSpike, skip };
       }
       return out;
     },
