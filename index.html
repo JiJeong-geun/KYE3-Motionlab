@@ -772,7 +772,7 @@ async function countdown(ctx,n,label,word){
 const RUNNERS={};
 
 RUNNERS.jump=async function(ctx){
-  await countdown(ctx,5,'폰을 꽉 쥐고 가만히','점프!');
+  await countdown(ctx,5,'휴대폰을 꽉 쥐고<br>팔은 크게 움직이지 마세요','점프!');
   keepAwake(true); ctx.cleanup(()=>keepAwake(false));
   ctx.view(`<div class="measure"><div class="status">점프!</div><div class="dots" id="jmDots"><i></i><i></i><i></i></div><div class="jlist" id="jmList"></div><div class="timer" id="jmTime">30</div><button class="btn ghost" id="jmDone">측정 종료</button></div>`);
   beep(988,0.2); buzz(80);
