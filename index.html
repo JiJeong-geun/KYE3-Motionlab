@@ -213,7 +213,7 @@ footer{margin-top:26px;text-align:center;color:#555;font-size:12px}
 const G = 9.80665;
 // 실제 기기 테스트 후 여기 숫자만 조정하면 돼요.
 const TUNE = {
-  jump:   { lowTh:4.5, highTh:7.5, takeoffTh:10.5, takeoffWindow:0.6, minFlight:0.16, maxFlight:1.0, mergeGap:90, softMerge:220, landPeak:24, refractory:600, minCm:10, maxCm:60 },
+  jump:   { lowTh:4.5, highTh:7.5, takeoffTh:10.5, takeoffWindow:0.6, minFlight:0.16, maxFlight:1.0, mergeGap:90, softMerge:200, landPeak:24, prepFlight:0.25, prepWindow:400, strongFlight:0.2, leadMax:150, refractory:600, minCm:10, maxCm:60 },
   react:  { rounds:6, minValid:100, maxWait:2500, minDelay:1500, maxDelay:4500, bestMs:180, worstMs:720 },
   balance:{ accBest:0.05, accWorst:1.4, gyroBest:1.0, gyroWorst:14, touchPeakGyro:60, touchPeakAcc:2.5, legSec:15, prepSec:5, switchSec:7 },
   sprint: { seconds:15, fcHz:2.8, minAmp:6, k:0.35, minPeriod:250, minCount:18, maxCount:64 },
@@ -227,7 +227,7 @@ function toScore(x01){ return Math.round(clamp(x01,0,1)*100); }
 /* 점프: 가속도 크기(중력 포함)가 0 근처로 떨어지는 '무중력 구간'의 길이 = 체공시간. h = g·t²/8 */
 function createJumpDetector(opts){
   const o = Object.assign({}, TUNE.jump, opts);
-  let fr=1, carry=[], state='ground', tLow=0, lastSpike=-1e9, lastLand=-1e9, skip=false, pend=null, prev=null; const jumps=[];
+  let prepN=0, fr=1, carry=[], state='ground', tLow=0, lastSpike=-1e9, lastLand=-1e9, skip=false, pend=null, prev=null; const jumps=[];
   // 문턱을 넘는 순간을 샘플 사이에서 보간해서 구해요(60Hz면 샘플 간격이 17ms라, 보간 없이는 점프마다 ±17ms씩 흔들려요).
   let cur=null;
   const crossDown=(lvl)=> (prev && prev.m>cur.m && prev.m>=lvl) ? prev.t+(prev.m-lvl)/(prev.m-cur.m)*(cur.t-prev.t) : cur.t;
@@ -236,15 +236,28 @@ function createJumpDetector(opts){
   //  · 충격이 컸다면(진짜 착지) mergeGap(90ms)만 기다리고,
   //  · 충격이 작았다면(체공 중 팔을 휘두르다 폰이 튄 것) softMerge(220ms) 안에 다시 '무중력'이 이어지면 같은 점프로 합쳐요.
   //    손에 쥔 폰은 체공 중에 값이 튀어 구간이 둘로 끊기는 일이 잦고, 그러면 높이가 작게·들쭉날쭉하게 나왔어요.
-  const waitFor=()=> pend.peak<o.landPeak ? o.softMerge : o.mergeGap;
+  //  · 짧은(prepFlight 미만) 조각 뒤에 푸시오프 시간(softMerge 초과)을 두고 새 '무중력'이 이어지면, 앞 조각은 점프 전에 웅크릴 때(카운터무브먼트)
+  //    몸이 빠르게 내려가며 생기는 짧은 무중력이라서 버리고, 새 구간부터 체공으로 봐요. (예전에는 이 조각이 '3cm 점프'로 기록되고 진짜 점프는 버려졌어요)
+  const isShort=p=> (p.t-p.tLow)/1000 < o.prepFlight;
+  const waitFor=()=> pend.peak<o.landPeak ? (isShort(pend)?o.prepWindow:o.softMerge) : o.mergeGap;
+  const rejects=[];
   const settle=()=>{
     const p=pend; pend=null; lastLand=p.t;
-    const flight=(p.t-p.tLow)/1000;
+    const flight=(p.t-p.tLow)/1000, lead=Math.round(p.tLow-p.spike);
     // 착지 직후(refractory ms 이내)에 시작된 무중력 구간은 폰이 출렁인 것이지 새 점프가 아니에요.
-    if(!p.skip && flight>=o.minFlight && flight<=o.maxFlight && (p.tLow-p.spike)/1000<=o.takeoffWindow){
-      const j={ t:p.t, flight, height: G*flight*flight/8*100, peak:p.peak, frags:p.frags, parts:p.carry };
+    // 가슴 앞에 붙여 잡으면 이륙 직전 푸시오프 충격이 몸에 흡수돼 약하게 찍혀요. 그래도 체공이 충분히 길고 착지 충격이 확실하면(strongLand) 이륙 충격이 없어도 점프로 인정해요.
+    const okSpike=(p.tLow-p.spike)/1000<=o.takeoffWindow;
+    const strong= p.peak>=o.landPeak && flight>=o.strongFlight;
+    let why=null;
+    if(p.skip) why='착지 직후';
+    else if(flight<o.minFlight) why='체공 짧음';
+    else if(flight>o.maxFlight) why='체공 김';
+    else if(!okSpike && !strong) why='이륙전 충격 없음';
+    if(!why){
+      const j={ t:p.t, flight, height: G*flight*flight/8*100, peak:p.peak, frags:p.frags, parts:p.carry, lead:okSpike?lead:-1, prep:prepN }; prepN=0;
       jumps.push(j); return j;
     }
+    if(flight>=0.08 && rejects.length<6) rejects.push({flight, peak:p.peak, lead, why});
     return null;
   };
   return {
@@ -253,10 +266,14 @@ function createJumpDetector(opts){
       if(pend && m>pend.peak) pend.peak=m;
       if(pend && m>=o.lowTh && t-pend.t>waitFor()) out=settle();
       if(state==='ground'){
-        if(m>o.takeoffTh && !pend) lastSpike=t;
+        if(m>o.takeoffTh && (!pend || isShort(pend))) lastSpike=t;
         if(m<o.lowTh){
           state='air';
-          if(pend && t-pend.t<=waitFor()){ tLow=pend.tLow; lastSpike=pend.spike; skip=pend.skip; fr=pend.frags+1; carry=pend.carry.concat([{len:Math.round(pend.t-pend.tLow), peak:pend.peak, gap:Math.round(t-pend.t)}]); pend=null; }
+          // 점프 전 웅크림: 짧은 조각이고, 그 앞에 푸시오프(이륙 직전 충격)가 없는데 조각 뒤 간격에 푸시오프가 있으면 → 그 조각은 체공이 아니라 웅크림이에요.
+          //   (진짜 체공은 시작 직전에 푸시오프 충격이 붙어 있어요. 실측: 29ms·53ms짜리 조각이 진짜 체공 앞에 붙어 체공이 0.13~0.15초 부풀었어요)
+          const prepCand = pend && t-pend.t<=waitFor() && pend.peak<o.landPeak && isShort(pend) && ( t-pend.t>o.softMerge || ((pend.tLow-pend.spike)>o.leadMax && pend.peak>=o.takeoffTh) );
+          if(prepCand){ pend=null; prepN++; tLow=crossDown(o.lowTh); skip=false; fr=1; carry=[]; }
+          else if(pend && t-pend.t<=waitFor()){ tLow=pend.tLow; lastSpike=pend.spike; skip=pend.skip; fr=pend.frags+1; carry=pend.carry.concat([{len:Math.round(pend.t-pend.tLow), peak:pend.peak, gap:Math.round(t-pend.t)}]); pend=null; }
           else { if(pend) out=settle()||out; tLow=crossDown(o.lowTh); skip=(t-lastLand<o.refractory); fr=1; carry=[]; }
         }
       } else if(m>o.highTh){
@@ -264,7 +281,8 @@ function createJumpDetector(opts){
       }
       prev=cur; return out;
     },
-    get jumps(){ return jumps; }
+    get jumps(){ return jumps; },
+    get rejects(){ return rejects; }
   };
 }
 
@@ -683,13 +701,13 @@ function tierText(s){
     :s>=10?'조금 더 집중해서 다시 해볼까요?'
     :'결과가 이상해요. 다시 측정해주세요.';
 }
-function buildJump(found){
+function buildJump(found,rejects){
   const best=found.length?Math.max(...found.map(j=>j.height)):0;
   const bestFlight=found.length?Math.max(...found.map(j=>j.flight)):0;
   return { metric:best?Math.round(best*10)/10:null, score:jumpScore(best), main:best?best.toFixed(1):'—', unit:'cm', label:best?best.toFixed(1)+'cm':'—',
     note: best?'':'점프가 감지되지 않았어요. 폰을 더 꽉 쥐거나 주머니에 넣고 다시 시도해 보세요.',
     sub: found.map((j,i)=>[(i+1)+'번째 점프', j.height.toFixed(1)+' cm']).concat(best?[['최대 체공시간', bestFlight.toFixed(2)+' s']]:[])
-      .concat(/[?&]debug/.test(location.search)?found.map((j,i)=>['디버그 '+(i+1), '체공 '+Math.round(j.flight*1000)+'ms · 착지충격 '+(j.peak/G).toFixed(1)+'g · 조각 '+j.frags+(j.parts&&j.parts.length?' ['+j.parts.map(c=>c.len+'ms→'+(c.peak/G).toFixed(1)+'g→간격'+c.gap+'ms').join(', ')+']':'')]):[]) };   // 주소 끝에 ?debug 를 붙이면 점프별 상세값이 보여요(튜닝용)
+      .concat(/[?&]debug/.test(location.search)?found.map((j,i)=>['디버그 '+(i+1), '체공 '+Math.round(j.flight*1000)+'ms · 착지충격 '+(j.peak/G).toFixed(1)+'g · 조각 '+j.frags+' · 이륙전충격 '+j.lead+'ms'+(j.prep?' · 웅크림제외 '+j.prep:'')+(j.parts&&j.parts.length?' ['+j.parts.map(c=>c.len+'ms→'+(c.peak/G).toFixed(1)+'g→간격'+c.gap+'ms').join(', ')+']':'')]).concat((rejects||[]).map((r,i)=>['미인식 '+(i+1), r.why+' · 체공 '+Math.round(r.flight*1000)+'ms · 착지충격 '+(r.peak/G).toFixed(1)+'g · 이륙전충격 '+r.lead+'ms'])):[]) };   // 주소 끝에 ?debug 를 붙이면 점프별 상세값이 보여요(튜닝용)
 }
 const RK_KEY='kye3_motionlab_rx_v1';
 function loadRank(){ try{ const j=JSON.parse(localStorage.getItem(RK_KEY)||'[]'); return Array.isArray(j)?j:[]; }catch(e){ return []; } }
@@ -756,13 +774,13 @@ const RUNNERS={};
 RUNNERS.jump=async function(ctx){
   await countdown(ctx,5,'폰을 꽉 쥐고 가만히','점프!');
   keepAwake(true); ctx.cleanup(()=>keepAwake(false));
-  ctx.view(`<div class="measure"><div class="status">점프!</div><div class="dots" id="jmDots"><i></i><i></i><i></i></div><div class="jlist" id="jmList"></div><div class="timer" id="jmTime">15</div><button class="btn ghost" id="jmDone">측정 종료</button></div>`);
+  ctx.view(`<div class="measure"><div class="status">점프!</div><div class="dots" id="jmDots"><i></i><i></i><i></i></div><div class="jlist" id="jmList"></div><div class="timer" id="jmTime">30</div><button class="btn ghost" id="jmDone">측정 종료</button></div>`);
   beep(988,0.2); buzz(80);
   const det=createJumpDetector(); const found=[];
   await new Promise(resolve=>{
     const t0=performance.now(); let fin=false, iv=null;
     const finish=()=>{ if(fin) return; fin=true; Sensors.sink=null; clearInterval(iv); resolve(); };
-    iv=setInterval(()=>{ const left=Math.max(0,15-(performance.now()-t0)/1000); const el=$('#jmTime'); if(el) el.textContent=Math.ceil(left); if(left<=0) finish(); },200);
+    iv=setInterval(()=>{ const left=Math.max(0,30-(performance.now()-t0)/1000); const el=$('#jmTime'); if(el) el.textContent=Math.ceil(left); if(left<=0) finish(); },200);
     ctx.cleanup(finish);
     const done=$('#jmDone'); if(done) done.onclick=finish;
     Sensors.sink=s=>{
@@ -774,7 +792,7 @@ RUNNERS.jump=async function(ctx){
     };
   });
   ctx.check();
-  return buildJump(found);
+  return buildJump(found,det.rejects);
 };
 
 function reactionRound(ctx){
